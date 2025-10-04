@@ -1,0 +1,261 @@
+{
+  "questions": [
+    {
+      "id": "q1759559478166",
+      "q": "Test",
+      "type": "mc",
+      "points": 1,
+      "subject": "math",
+      "level": "11",
+      "options": [
+        {
+          "text": "1",
+          "correct": false
+        },
+        {
+          "text": "2",
+          "correct": false
+        },
+        {
+          "text": "3",
+          "correct": false
+        },
+        {
+          "text": "4",
+          "correct": true
+        }
+      ]
+    },
+    {
+      "id": "q1759559504254",
+      "q": "test2",
+      "type": "essay",
+      "points": 1,
+      "subject": "math",
+      "level": "10",
+      "options": []
+    },
+    {
+      "id": "q1759559578980",
+      "q": "test3",
+      "type": "mc",
+      "points": 1,
+      "subject": "math",
+      "level": "10",
+      "options": [
+        {
+          "text": "1",
+          "correct": true
+        },
+        {
+          "text": "2",
+          "correct": false
+        },
+        {
+          "text": "3",
+          "correct": false
+        },
+        {
+          "text": "4",
+          "correct": false
+        }
+      ]
+    },
+    {
+      "id": "1a882ebd-a39c-4ca4-b4ae-23d3bdf3d81f",
+      "q": "ABCD",
+      "type": "mc",
+      "points": 1,
+      "subject": "biology",
+      "level": "10",
+      "options": [
+        {
+          "text": "1",
+          "correct": true
+        },
+        {
+          "text": "2",
+          "correct": false
+        },
+        {
+          "text": "3",
+          "correct": false
+        },
+        {
+          "text": "4",
+          "correct": false
+        }
+      ]
+    },
+    {
+      "id": "d6ac2666-20e8-4004-b621-e875695780a7",
+      "q": "ABCDEF",
+      "type": "mc",
+      "points": 1,
+      "subject": "civic",
+      "level": "10",
+      "options": [
+        {
+          "text": "1",
+          "correct": true
+        },
+        {
+          "text": "2",
+          "correct": false
+        },
+        {
+          "text": "3",
+          "correct": false
+        },
+        {
+          "text": "4",
+          "correct": false
+        }
+      ]
+    }
+  ],
+  "users": [
+    {
+      "id": "teacher",
+      "user": "teacher",
+      "pass": "1234",
+      "role": "teacher"
+    },
+    {
+      "id": "st1759559599867",
+      "user": "Quang",
+      "pass": "1",
+      "role": "student",
+      "dob": "",
+      "gender": "nam"
+    }
+  ],
+  "tests": [
+    {
+      "id": "test1759559928425",
+      "name": "1",
+      "time": 45,
+      "subject": "math",
+      "level": "10",
+      "questions": [
+        {
+          "id": "q1759559478166",
+          "q": "Test",
+          "type": "mc",
+          "points": 1,
+          "subject": "math",
+          "level": "10",
+          "options": [
+            {
+              "text": "1",
+              "correct": false
+            },
+            {
+              "text": "2",
+              "correct": false
+            },
+            {
+              "text": "3",
+              "correct": false
+            },
+            {
+              "text": "4",
+              "correct": true
+            }
+          ]
+        },
+        {
+          "id": "q1759559504254",
+          "q": "test2",
+          "type": "essay",
+          "points": 1,
+          "subject": "math",
+          "level": "10",
+          "options": []
+        },
+        {
+          "id": "q1759559578980",
+          "q": "test3",
+          "type": "mc",
+          "points": 1,
+          "subject": "math",
+          "level": "10",
+          "options": [
+            {
+              "text": "1",
+              "correct": true
+            },
+            {
+              "text": "2",
+              "correct": false
+            },
+            {
+              "text": "3",
+              "correct": false
+            },
+            {
+              "text": "4",
+              "correct": false
+            }
+          ]
+        }
+      ],
+      "teacherId": "teacher"
+    },
+    {
+      "id": "070183fa-3f86-4abd-9729-664467a78b13",
+      "name": "2",
+      "time": 45,
+      "subject": "math",
+      "level": "10",
+      "questions": [
+        {
+          "id": "q1759559578980",
+          "q": "test3",
+          "type": "mc",
+          "points": 1,
+          "subject": "math",
+          "level": "10",
+          "options": [
+            {
+              "text": "1",
+              "correct": true
+            },
+            {
+              "text": "2",
+              "correct": false
+            },
+            {
+              "text": "3",
+              "correct": false
+            },
+            {
+              "text": "4",
+              "correct": false
+            }
+          ]
+        },
+        {
+          "id": "q1759559504254",
+          "q": "test2",
+          "type": "essay",
+          "points": 1,
+          "subject": "math",
+          "level": "10",
+          "options": []
+        }
+      ],
+      "teacherId": "teacher"
+    }
+  ],
+  "assigns": [
+    {
+      "id": "assign1759559957422",
+      "testId": "test1759559928425",
+      "studentId": "st1759559599867",
+      "deadline": "2025-10-04T19:39",
+      "status": "assigned"
+    }
+  ],
+  "results": []
+}

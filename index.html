@@ -1,0 +1,1276 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Math Test Builder — Tạo & Giao đề</title>
+  <style>
+.btn-edit {
+  background-color: #4CAF50; /* xanh lá */
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  margin: 2px;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.btn-delete {
+  background-color: #f44336; /* đỏ */
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  margin: 2px;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.btn-delete:hover {
+  background-color: #d32f2f;
+}
+    body { font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, Arial; background:#f3f4f6; margin:0 }
+    .container { max-width:1100px; margin:28px auto; padding:20px }
+    header { display:flex;justify-content:space-between;align-items:center }
+    h1 { margin:0; font-size:20px }
+    #tab-switcher { display:flex; margin-top:16px; border-bottom:1px solid #ddd }
+    .tab-button {
+      padding:10px 15px;
+      cursor:pointer;
+      background:#fff;
+      border:1px solid #ddd;
+      border-bottom:none;
+      border-top-left-radius:8px;
+      border-top-right-radius:8px;
+      margin-right:4px;
+      transition:background-color .3s
+    }
+    .tab-button:hover { background-color:#f0f0f0 }
+    .tab-button.active {
+      background-color:#007bff;
+      color:#fff;
+      border-color:#007bff
+    }
+    .tab-content { display:none; padding:20px 0 }
+    .tab-content.active { display:block }
+    .form-group { margin-bottom:15px }
+    label { display:block; margin-bottom:5px; font-weight:bold }
+    input[type=text], input[type=password], select, textarea, input[type=number], input[type=date], input[type=datetime-local] {
+      width:calc(100% - 22px);
+      padding:10px;
+      border:1px solid #ccc;
+      border-radius:4px;
+      box-sizing:border-box
+    }
+    .login-form {
+      max-width:400px;
+      margin:50px auto;
+      padding:20px;
+      border:1px solid #ccc;
+      border-radius:8px;
+      background-color:#fff
+    }
+    #login-msg { color:red; margin-top:10px }
+    .btn {
+      display:inline-block;
+      padding:10px 20px;
+      color:#fff;
+      background-color:#007bff;
+      border:none;
+      border-radius:4px;
+      cursor:pointer;
+      text-align:center;
+      transition:background-color .3s
+    }
+    .btn:hover { background-color:#0056b3 }
+    .btn.danger { background-color:#dc3545 }
+    .btn.danger:hover { background-color:#c82333 }
+    .btn-create-test { background-color: #28a745; margin-bottom: 20px;}
+    .test-item {
+      border: 1px solid #ccc;
+      padding: 15px;
+      margin-bottom: 15px;
+      border-radius: 8px;
+      background-color: #f9f9f9;
+    }
+    .test-item h3 { margin-top: 0; }
+    .test-item p { margin-bottom: 5px; }
+    .inline-btn {
+      padding: 5px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      border: none;
+      color: white;
+      margin-right: 5px;
+    }
+    .inline-btn.danger { background-color: #dc3545; }
+    .inline-btn.muted { background-color: #6c757d; }
+    .student-test-item {
+      border: 1px solid #ccc;
+      padding: 10px;
+      margin-bottom: 10px;
+      border-radius: 5px;
+    }
+    .student-test-item h4 { margin: 0 0 10px; }
+    .question {
+      margin-bottom: 10px;
+      padding: 10px;
+      border: 1px solid #eee;
+      border-radius: 4px;
+    }
+    .question.correct { border-color: green; background-color: #e6ffe6; }
+    .question.incorrect { border-color: red; background-color: #ffe6e6; }
+    .options label {
+      display: inline-block;
+      margin-right: 15px;
+    }
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0,0,0,0.4);
+      padding-top: 60px;
+    }
+    .modal-content {
+      background-color: #fefefe;
+      margin: 5% auto;
+      padding: 20px;
+      border: 1px solid #888;
+      width: 80%;
+    }
+    .close {
+      color: #aaa;
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+    }
+    .close:hover,
+    .close:focus {
+      color: black;
+      text-decoration: none;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="container" id="login-container">
+    <div class="login-form">
+      <h2>Đăng nhập</h2>
+      <div class="form-group">
+        <label for="login-user">Tài khoản:</label>
+        <input type="text" id="login-user" required>
+      </div>
+      <div class="form-group">
+        <label for="login-pass">Mật khẩu:</label>
+        <input type="password" id="login-pass" required>
+      </div>
+      <button class="btn" id="btn-login">Đăng nhập</button>
+      <div id="login-msg"></div>
+    </div>
+  </div>
+
+  <div class="container" id="teacher-container" style="display:none;">
+    <header>
+      <h1>Chào mừng giáo viên <span id="teacher-name"></span></h1>
+      <button class="btn danger" onclick="logout()">Đăng xuất</button>
+    </header>
+    <div id="tab-switcher">
+      <div class="tab-button active" onclick="showTab('tab-q', this)">Ngân hàng câu hỏi</div>
+      <div class="tab-button" onclick="showTab('tab-test', this)">Bài kiểm tra</div>
+      <div class="tab-button" onclick="showTab('tab-assign', this)">Giao đề</div>
+      <div class="tab-button" onclick="showTab('tab-students', this)">Học sinh</div>
+      <div class="tab-button" onclick="showTab('tab-results', this)">Kết quả</div>
+    </div>
+
+    <div id="tab-q" class="tab-content active">
+      <h2>Ngân hàng câu hỏi</h2>
+      <div class="form-group">
+        <label for="q-subject">Môn học</label>
+        <select id="q-subject">
+          <option value="">Tất cả</option>
+          <option value="math">Toán</option>
+          <option value="literature">Văn</option>
+	<option value="english">Tiếng Anh</option>
+	<option value="physics">Vật lý</option>
+	<option value="chemistry">Hóa học</option>
+	<option value="biology">Sinh học</option>
+	<option value="history">Lịch sử</option>
+	<option value="geography">Địa lý</option>
+	<option value="civic">GDCD</option>
+	<option value="it">Tin học</option>
+
+        </select>
+        <label for="q-level">Khối</label>
+        <select id="q-level">
+          <option value="">Tất cả</option>
+          <option value="10">10</option>
+          <option value="11">11</option>
+          <option value="12">12</option>
+        </select>
+        <button class="btn" onclick="renderQuestions()">Lọc</button>
+        <button class="btn" onclick="document.getElementById('add-q-form').style.display='block'">+ Thêm câu hỏi</button>
+      </div>
+
+<div id="edit-q-modal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="document.getElementById('edit-q-modal').style.display='none'">&times;</span>
+    <h3>Sửa câu hỏi</h3>
+    <input type="hidden" id="edit-q-id">
+    <div class="form-group">
+      <label>Nội dung:</label>
+      <textarea id="edit-q-text"></textarea>
+    </div>
+    <div class="form-group">
+      <label>Điểm:</label>
+      <input type="number" id="edit-q-points">
+    </div>
+    <div class="form-group">
+      <label>Môn học:</label>
+      <select id="edit-q-subject">
+        <option value="math">Toán</option>
+        <option value="literature">Văn</option>
+        <option value="english">Tiếng Anh</option>
+	<option value="physics">Vật lý</option>
+	<option value="chemistry">Hóa học</option>
+	<option value="biology">Sinh học</option>
+	<option value="history">Lịch sử</option>
+	<option value="geography">Địa lý</option>
+	<option value="civic">GDCD</option>
+	<option value="it">Tin học</option>
+
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Khối:</label>
+      <select id="edit-q-level">
+        <option value="10">10</option>
+        <option value="11">11</option>
+        <option value="12">12</option>
+      </select>
+    </div>
+<div class="form-group">
+  <label>Loại câu hỏi:</label>
+  <select id="edit-q-type" onchange="toggleEditOptions()">
+    <option value="mc">Trắc nghiệm</option>
+    <option value="essay">Tự luận</option>
+  </select>
+</div>
+<div class="form-group" id="edit-q-options" style="display:none;">
+  <label>Đáp án:</label>
+  <div id="edit-options-list"></div>
+  <button type="button" onclick="addEditOption()">+ Thêm đáp án</button>
+</div>
+    <button class="btn" onclick="saveEditQ()">Lưu</button>
+  </div>
+</div>
+
+
+
+      <div id="add-q-form" style="display:none; border:1px solid #ccc; padding:15px; margin-bottom:20px;">
+        <h4>Thêm câu hỏi mới</h4>
+        <div class="form-group">
+          <label for="q-text">Nội dung câu hỏi:</label>
+          <textarea id="q-text" rows="4"></textarea>
+        </div>
+        <div class="form-group">
+          <label for="q-type">Loại câu hỏi:</label>
+          <select id="q-type" onchange="toggleOptions()">
+            <option value="mc">Trắc nghiệm</option>
+            <option value="essay">Tự luận</option>
+          </select>
+        </div>
+        <div class="form-group" id="q-options" style="display:block;">
+          <label>Đáp án:</label>
+          <div id="options-list">
+            <div class="option-item">
+              <input type="text" placeholder="Đáp án A" class="option-input" />
+              <input type="checkbox" class="option-correct" />
+              <button onclick="removeOption(this)">-</button>
+            </div>
+          </div>
+          <button onclick="addOption()">+ Thêm đáp án</button>
+        </div>
+        <div class="form-group">
+          <label for="q-points">Điểm:</label>
+          <input type="number" id="q-points" value="1" min="0.1" step="0.1" />
+        </div>
+        <div class="form-group">
+          <label for="q-subject-new">Môn học:</label>
+          <select id="q-subject-new">
+            <option value="math">Toán</option>
+            <option value="literature">Văn</option>
+	<option value="english">Tiếng Anh</option>
+	<option value="physics">Vật lý</option>
+	<option value="chemistry">Hóa học</option>
+	<option value="biology">Sinh học</option>
+	<option value="history">Lịch sử</option>
+	<option value="geography">Địa lý</option>
+	<option value="civic">GDCD</option>
+	<option value="it">Tin học</option>
+
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="q-level-new">Khối:</label>
+          <select id="q-level-new">
+            <option value="10">10</option>
+            <option value="11">11</option>
+            <option value="12">12</option>
+          </select>
+        </div>
+        <button class="btn" onclick="addQuestion()">Thêm</button>
+      </div>
+      <table id="q-table" border="1" style="width:100%;border-collapse:collapse;">
+        <thead>
+          <tr>
+            <th>STT</th>
+            <th>Nội dung</th>
+            <th>Loại</th>
+            <th>Điểm</th>
+            <th>Môn</th>
+            <th>Khối</th>
+            <th>Hành động</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <div id="tab-test" class="tab-content">
+      <h2>Tạo bài kiểm tra</h2>
+      <div id="create-test-form">
+        <div class="form-group">
+          <label for="test-name">Tên bài kiểm tra:</label>
+          <input type="text" id="test-name" />
+        </div>
+        <div class="form-group">
+          <label for="test-time">Thời gian (phút):</label>
+          <input type="number" id="test-time" value="45" min="1" />
+        </div>
+        <div class="form-group">
+          <label for="test-subject">Môn học:</label>
+          <select id="test-subject">
+           <option value="math">Toán</option>
+ 	   <option value="literature">Văn</option>
+  	   <option value="english">Tiếng Anh</option>
+  	   <option value="physics">Vật lý</option>
+  	   <option value="chemistry">Hóa học</option>
+  	   <option value="biology">Sinh học</option>
+  	   <option value="history">Lịch sử</option>
+  	   <option value="geography">Địa lý</option>
+  	   <option value="civic">GDCD</option>
+  	   <option value="it">Tin học</option>
+	 </select>
+        </div>
+        <div class="form-group">
+          <label for="test-level">Khối:</label>
+          <select id="test-level">
+            <option value="10">10</option>
+            <option value="11">11</option>
+            <option value="12">12</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="test-q-count">Số câu hỏi:</label>
+          <input type="number" id="test-q-count" value="10" min="1" />
+        </div>
+        <button class="btn btn-create-test" onclick="createTest()">Tạo bài kiểm tra</button>
+      </div>
+      <h5>Danh sách bài kiểm tra</h5>
+      <div id="tests-list"></div>
+    </div>
+    
+    <div id="edit-test-modal" class="modal">
+      <div class="modal-content">
+        <span class="close" onclick="document.getElementById('edit-test-modal').style.display='none'">&times;</span>
+        <h3>Sửa bài kiểm tra</h3>
+        <div class="form-group">
+          <label for="edit-test-id">Mã bài kiểm tra:</label>
+          <input type="text" id="edit-test-id" disabled />
+        </div>
+        <div class="form-group">
+          <label for="edit-test-name">Tên bài kiểm tra:</label>
+          <input type="text" id="edit-test-name" />
+        </div>
+        <div class="form-group">
+          <label for="edit-test-time">Thời gian (phút):</label>
+          <input type="number" id="edit-test-time" min="1" />
+        </div>
+        <div class="form-group">
+          <label for="edit-test-subject">Môn học:</label>
+          <select id="edit-test-subject">
+            <option value="math">Toán</option>
+            <option value="literature">Văn</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="edit-test-level">Khối:</label>
+          <select id="edit-test-level">
+            <option value="10">10</option>
+            <option value="11">11</option>
+            <option value="12">12</option>
+          </select>
+        </div>
+        <button class="btn" onclick="saveEditTest()">Lưu</button>
+      </div>
+    </div>
+
+
+    <div id="tab-assign" class="tab-content">
+      <h2>Giao đề</h2>
+      <div class="form-group">
+        <label for="assign-test">Chọn bài kiểm tra:</label>
+        <select id="assign-test"></select>
+      </div>
+      <div class="form-group">
+        <label for="assign-student">Chọn học sinh:</label>
+        <select id="assign-student"></select>
+      </div>
+      <div class="form-group">
+        <label for="assign-deadline">Hạn chót:</label>
+        <input type="datetime-local" id="assign-deadline" />
+      </div>
+      <button class="btn" onclick="assignTest()">Giao đề</button>
+      <h3>Danh sách đề đã giao</h3>
+      <div id="assigns-list"></div>
+    </div>
+
+    <div id="tab-students" class="tab-content">
+      <h2>Quản lý học sinh</h2>
+      <button class="btn" onclick="document.getElementById('add-student-form').style.display='block'">+ Thêm học sinh</button>
+      <div id="add-student-form" style="display:none; border:1px solid #ccc; padding:15px; margin-bottom:20px;">
+        <h3>Thêm học sinh mới</h3>
+        <div class="form-group">
+          <label for="stu-user">Tài khoản:</label>
+          <input type="text" id="stu-user" />
+        </div>
+        <div class="form-group">
+          <label for="stu-pass">Mật khẩu:</label>
+          <input type="password" id="stu-pass" />
+        </div>
+        <div class="form-group">
+          <label for="stu-dob">Ngày sinh:</label>
+          <input type="date" id="stu-dob" />
+        </div>
+        <div class="form-group">
+          <label for="stu-gender">Giới tính:</label>
+          <select id="stu-gender">
+            <option value="nam">Nam</option>
+            <option value="nữ">Nữ</option>
+            <option value="khác">Khác</option>
+          </select>
+        </div>
+        <button class="btn" onclick="addStudent()">Thêm</button>
+      </div>
+      <table id="students-table" border="1" style="width:100%;border-collapse:collapse; margin-top: 20px;">
+        <thead>
+          <tr>
+            <th>STT</th>
+            <th>Tài khoản</th>
+            <th>Ngày sinh</th>
+            <th>Giới tính</th>
+            <th>Hành động</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <div id="tab-results" class="tab-content">
+      <h2>Kết quả bài làm</h2>
+      <div id="results-list"></div>
+    </div>
+  </div>
+
+  <div class="container" id="student-container" style="display:none;">
+    <header>
+      <h1>Chào mừng học sinh <span id="student-name"></span></h1>
+      <button class="btn danger" onclick="logout()">Đăng xuất</button>
+    </header>
+    <h3>Bài kiểm tra được giao</h3>
+    <div id="assigned-tests-list"></div>
+    <h3>Lịch sử bài làm</h3>
+    <div id="student-results-list"></div>
+  </div>
+
+  <script>
+
+const SUBJECT_NAMES = {
+  math: "Toán",
+  literature: "Văn",
+  english: "Tiếng Anh",
+  physics: "Vật lý",
+  chemistry: "Hóa học",
+  biology: "Sinh học",
+  history: "Lịch sử",
+  geography: "Địa lý",
+  civic: "GDCD",
+  it: "Tin học"
+};
+
+    const serverUrl = "https://quiz-app.onrender.com/api";
+
+    function showTab(tabId, element) {
+      document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+      element.classList.add('active');
+      document.getElementById(tabId).classList.add('active');
+      
+      // Load data for the active tab
+      if (tabId === 'tab-q') renderQuestions();
+      if (tabId === 'tab-test') renderTests();
+      if (tabId === 'tab-assign') renderAssigns();
+      if (tabId === 'tab-students') renderStudents();
+      if (tabId === 'tab-results') renderResults();
+    }
+
+    function escapeHtml(unsafe) {
+        return unsafe.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+    }
+    
+    // --- Login & Logout ---
+    document.getElementById('btn-login').addEventListener('click', async () => {
+      const u = document.getElementById('login-user').value.trim();
+      const p = document.getElementById('login-pass').value.trim();
+      const loginMsg = document.getElementById('login-msg');
+
+      try {
+        const response = await fetch(`${serverUrl}/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ user: u, pass: p }),
+        });
+        const data = await response.json();
+        
+        if (data.success) {
+          if (data.user.role === 'teacher') {
+            showTeacher();
+          } else {
+            showStudent(data.user);
+          }
+        } else {
+          loginMsg.textContent = data.message;
+        }
+      } catch (error) {
+        loginMsg.textContent = 'Lỗi kết nối đến máy chủ. Đảm bảo server đang chạy.';
+      }
+    });
+
+    function logout() {
+      document.getElementById('login-container').style.display = 'block';
+      document.getElementById('teacher-container').style.display = 'none';
+      document.getElementById('student-container').style.display = 'none';
+      document.getElementById('login-user').value = '';
+      document.getElementById('login-pass').value = '';
+      document.getElementById('login-msg').textContent = '';
+    }
+
+    function showTeacher() {
+      document.getElementById('login-container').style.display = 'none';
+      document.getElementById('teacher-container').style.display = 'block';
+      document.getElementById('teacher-name').textContent = 'Giáo viên';
+      showTab('tab-q', document.querySelector('.tab-button.active'));
+    }
+
+    function showStudent(user) {
+      document.getElementById('login-container').style.display = 'none';
+      document.getElementById('student-container').style.display = 'block';
+      document.getElementById('student-name').textContent = user.user;
+      renderStudentTests(user.id);
+      renderStudentResults(user.id);
+    }
+    
+    // --- Question Management (CRUD) ---
+    async function addQuestion() {
+      const qText = document.getElementById('q-text').value;
+      const type = document.getElementById('q-type').value;
+      const points = parseFloat(document.getElementById('q-points').value);
+      const subject = document.getElementById('q-subject-new').value;
+      const level = document.getElementById('q-level-new').value;
+      const options = [];
+      if (type === 'mc') {
+        const optionInputs = document.querySelectorAll('.option-input');
+        const correctCheckboxes = document.querySelectorAll('.option-correct');
+        for (let i = 0; i < optionInputs.length; i++) {
+          options.push({ text: optionInputs[i].value, correct: correctCheckboxes[i].checked });
+        }
+      }
+
+      if (!qText) {
+        alert("Nhập nội dung câu hỏi");
+        return;
+      }
+
+      const newQuestion = { q: qText, type, points, subject, level, options };
+      
+      try {
+        const response = await fetch(`${serverUrl}/questions`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(newQuestion),
+        });
+        if (response.ok) {
+          alert("Thêm câu hỏi thành công!");
+          document.getElementById('add-q-form').style.display = 'none';
+          document.getElementById('q-text').value = '';
+          renderQuestions();
+        } else {
+          alert("Lỗi khi thêm câu hỏi.");
+        }
+      } catch (error) {
+        alert("Lỗi kết nối đến máy chủ.");
+      }
+    }
+
+    async function renderQuestions() {
+      const tb = document.querySelector('#q-table tbody');
+      tb.innerHTML = '';
+      
+      try {
+        const response = await fetch(`${serverUrl}/questions`);
+        const qs = await response.json();
+
+        const fSubject = document.getElementById('q-subject').value;
+        const fLevel = document.getElementById('q-level').value;
+
+        let filteredQs = qs.filter(q => 
+          (!fSubject || q.subject === fSubject) && (!fLevel || q.level === fLevel)
+        );
+        
+        filteredQs.forEach((q, i) => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>${i + 1}</td>
+            <td>${escapeHtml(q.q)}</td>
+            <td>${q.type === 'mc' ? 'TN' : 'TL'}</td>
+            <td>${q.points}</td>
+           <td>${SUBJECT_NAMES[q.subject] || q.subject || '-'}</td>
+            <td>${q.level || '-'}</td>
+            <td>
+              <button onclick="editQ('${q.id}')" class="btn-edit">Sửa</button>
+              <button onclick="delQ('${q.id}')" class="btn-delete">Xóa</button>
+            </td>
+          `;
+          tb.appendChild(tr);
+        });
+      } catch (error) {
+        alert("Lỗi khi tải danh sách câu hỏi.");
+      }
+    }
+
+    async function delQ(id) {
+      if (!confirm('Xóa câu hỏi này?')) return;
+      try {
+        const response = await fetch(`${serverUrl}/questions/${id}`, { method: 'DELETE' });
+        if (response.ok) {
+          renderQuestions();
+        } else {
+          alert("Lỗi khi xóa câu hỏi.");
+        }
+      } catch (error) {
+        alert("Lỗi kết nối đến máy chủ.");
+      }
+    }
+
+    async function editQ(id) {
+  try {
+    const res = await fetch(`${serverUrl}/questions/${id}`);
+    const q = await res.json();
+
+    document.getElementById('edit-q-id').value = q.id;
+    document.getElementById('edit-q-text').value = q.q;
+    document.getElementById('edit-q-points').value = q.points;
+    document.getElementById('edit-q-subject').value = q.subject;
+    document.getElementById('edit-q-level').value = q.level;
+    document.getElementById('edit-q-type').value = q.type;
+    toggleEditOptions();
+
+    // render lại danh sách đáp án nếu là trắc nghiệm
+    const optionsList = document.getElementById('edit-options-list');
+    optionsList.innerHTML = '';
+    if (q.type === 'mc' && q.options) {
+      q.options.forEach(opt => {
+        const div = document.createElement('div');
+        div.classList.add('option-item');
+        div.innerHTML = `
+          <input type="text" value="${opt.text}" class="option-input" />
+          <input type="checkbox" class="option-correct" ${opt.correct ? 'checked' : ''} />
+          <button onclick="this.parentElement.remove()">-</button>
+        `;
+        optionsList.appendChild(div);
+      });
+    }
+
+    document.getElementById('edit-q-modal').style.display = 'block';
+  } catch (e) {
+    alert("Không tải được dữ liệu câu hỏi.");
+  }
+}
+
+async function saveEditQ() {
+  const id = document.getElementById('edit-q-id').value;
+  const type = document.getElementById('edit-q-type').value;
+
+  let options = [];
+  if (type === 'mc') {
+    const inputs = document.querySelectorAll('#edit-options-list .option-input');
+    const checks = document.querySelectorAll('#edit-options-list .option-correct');
+    for (let i = 0; i < inputs.length; i++) {
+      options.push({ text: inputs[i].value, correct: checks[i].checked });
+    }
+  }
+
+  const updated = {
+    q: document.getElementById('edit-q-text').value,
+    type,
+    points: parseFloat(document.getElementById('edit-q-points').value),
+    subject: document.getElementById('edit-q-subject').value,
+    level: document.getElementById('edit-q-level').value,
+    options
+  };
+
+  try {
+    const res = await fetch(`${serverUrl}/questions/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(updated)
+    });
+    if (res.ok) {
+      alert("Cập nhật thành công!");
+      document.getElementById('edit-q-modal').style.display = 'none';
+      renderQuestions();
+    } else {
+      alert("Cập nhật thất bại.");
+    }
+  } catch (e) {
+    alert("Lỗi kết nối server.");
+  }
+}
+
+function toggleEditOptions() {
+  const type = document.getElementById('edit-q-type').value;
+  document.getElementById('edit-q-options').style.display = type === 'mc' ? 'block' : 'none';
+}
+
+function addEditOption() {
+  const list = document.getElementById('edit-options-list');
+  const div = document.createElement('div');
+  div.classList.add('option-item');
+  div.innerHTML = `
+    <input type="text" placeholder="Đáp án" class="option-input" />
+    <input type="checkbox" class="option-correct" />
+    <button onclick="this.parentElement.remove()">-</button>
+  `;
+  list.appendChild(div);
+}
+
+function toggleEditOptions() {
+  const type = document.getElementById('edit-q-type').value;
+  document.getElementById('edit-q-options').style.display = type === 'mc' ? 'block' : 'none';
+}
+
+function addEditOption() {
+  const list = document.getElementById('edit-options-list');
+  const div = document.createElement('div');
+  div.classList.add('option-item');
+  div.innerHTML = `
+    <input type="text" placeholder="Đáp án" class="option-input" />
+    <input type="checkbox" class="option-correct" />
+    <button onclick="this.parentElement.remove()">-</button>
+  `;
+  list.appendChild(div);
+}
+
+
+    
+    // --- Test Management (CRUD) ---
+    async function createTest() {
+      const name = document.getElementById('test-name').value;
+      const time = parseInt(document.getElementById('test-time').value);
+      const subject = document.getElementById('test-subject').value;
+      const level = document.getElementById('test-level').value;
+      const qCount = parseInt(document.getElementById('test-q-count').value);
+
+      if (!name || isNaN(time) || isNaN(qCount)) {
+        alert("Vui lòng nhập đầy đủ thông tin.");
+        return;
+      }
+      
+      try {
+        const qsResponse = await fetch(`${serverUrl}/questions?subject=${subject}&level=${level}`);
+        const allQuestions = await qsResponse.json();
+        const testQuestions = shuffle(allQuestions).slice(0, qCount);
+
+        const newTest = {
+          name,
+          time,
+          subject,
+          level,
+          questions: testQuestions,
+          teacherId: 'teacher' // Giả lập teacher ID
+        };
+        
+        const response = await fetch(`${serverUrl}/tests`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(newTest),
+        });
+        
+        if (response.ok) {
+          alert("Tạo bài kiểm tra thành công!");
+          renderTests();
+        } else {
+          alert("Lỗi khi tạo bài kiểm tra.");
+        }
+      } catch (error) {
+        alert("Lỗi khi tạo bài kiểm tra: " + error.message);
+      }
+    }
+
+    async function renderTests() {
+      const testList = document.getElementById('tests-list');
+      testList.innerHTML = '';
+      try {
+        const response = await fetch(`${serverUrl}/tests`);
+        const tests = await response.json();
+        tests.forEach(test => {
+          const item = document.createElement('div');
+          item.classList.add('test-item');
+          item.innerHTML = `
+            <h3>${escapeHtml(test.name)}</h3>
+            <p>Thời gian: ${test.time} phút</p>
+            <p>Số câu: ${test.questions.length}</p>
+            <p>Môn: ${SUBJECT_NAMES[test.subject] || test.subject}</p>
+            <p>Khối: ${test.level}</p>
+            <button onclick="editTest('${test.id}')" class="inline-btn btn-edit">Sửa</button>
+            <button onclick="delTest('${test.id}')" class="inline-btn danger">Xóa</button>
+          `;
+          testList.appendChild(item);
+        });
+      } catch (error) {
+        alert("Lỗi khi tải danh sách bài kiểm tra.");
+      }
+    }
+
+    async function editTest(id) {
+      try {
+        const response = await fetch(`${serverUrl}/tests/${id}`);
+        const test = await response.json();
+        
+        document.getElementById('edit-test-id').value = test.id;
+        document.getElementById('edit-test-name').value = test.name;
+        document.getElementById('edit-test-time').value = test.time;
+        document.getElementById('edit-test-subject').value = test.subject;
+        document.getElementById('edit-test-level').value = test.level;
+        
+        document.getElementById('edit-test-modal').style.display = 'block';
+      } catch (error) {
+        alert("Lỗi khi tải dữ liệu bài kiểm tra: " + error.message);
+      }
+    }
+
+    async function saveEditTest() {
+      const id = document.getElementById('edit-test-id').value;
+      const name = document.getElementById('edit-test-name').value;
+      const time = parseInt(document.getElementById('edit-test-time').value);
+      const subject = document.getElementById('edit-test-subject').value;
+      const level = document.getElementById('edit-test-level').value;
+      
+      if (!name || isNaN(time)) {
+        alert("Vui lòng nhập tên và thời gian.");
+        return;
+      }
+
+      const updatedTest = { name, time, subject, level };
+      
+      try {
+        const response = await fetch(`${serverUrl}/tests/${id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(updatedTest),
+        });
+        
+        if (response.ok) {
+          alert("Cập nhật bài kiểm tra thành công!");
+          document.getElementById('edit-test-modal').style.display = 'none';
+          renderTests();
+        } else {
+          alert("Lỗi khi cập nhật bài kiểm tra.");
+        }
+      } catch (error) {
+        alert("Lỗi kết nối đến máy chủ.");
+      }
+    }
+
+    async function delTest(id) {
+      if (!confirm('Xóa bài kiểm tra này?')) return;
+      try {
+        const response = await fetch(`${serverUrl}/tests/${id}`, { method: 'DELETE' });
+        if (response.ok) {
+          renderTests();
+        } else {
+          alert("Lỗi khi xóa bài kiểm tra.");
+        }
+      } catch (error) {
+        alert("Lỗi kết nối đến máy chủ.");
+      }
+    }
+
+    // --- Student Management (CRUD) ---
+    async function addStudent() {
+      const user = document.getElementById('stu-user').value;
+      const pass = document.getElementById('stu-pass').value;
+      const dob = document.getElementById('stu-dob').value;
+      const gender = document.getElementById('stu-gender').value;
+
+      if (!user || !pass) {
+        alert("Vui lòng nhập tài khoản và mật khẩu.");
+        return;
+      }
+      
+      try {
+        const response = await fetch(`${serverUrl}/register`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ user, pass, dob, gender }),
+        });
+        const data = await response.json();
+        if (data.success) {
+          alert("Thêm học sinh thành công!");
+          document.getElementById('add-student-form').style.display = 'none';
+          renderStudents();
+        } else {
+          alert(data.message);
+        }
+      } catch (error) {
+        alert("Lỗi kết nối đến máy chủ.");
+      }
+    }
+
+    async function renderStudents() {
+      const tb = document.querySelector('#students-table tbody');
+      tb.innerHTML = '';
+      try {
+        const response = await fetch(`${serverUrl}/users`);
+        const users = await response.json();
+        const students = users.filter(u => u.role === 'student');
+        students.forEach((s, i) => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>${i + 1}</td>
+            <td>${escapeHtml(s.user)}</td>
+            <td>${s.dob || '-'}</td>
+            <td>${s.gender || '-'}</td>
+            <td>
+              <button onclick="editStudent('${s.id}')" class="inline-btn">✏️ Sửa</button>
+              <button onclick="resetStudent('${s.id}')" class="inline-btn muted">Reset MK</button>
+              <button onclick="delStudent('${s.id}')" class="inline-btn danger">Xóa</button>
+            </td>
+          `;
+          tb.appendChild(tr);
+        });
+      } catch (error) {
+        alert("Lỗi khi tải danh sách học sinh.");
+      }
+    }
+
+    async function delStudent(id) {
+      if (!confirm('Xóa học sinh này?')) return;
+      try {
+        const response = await fetch(`${serverUrl}/users/${id}`, { method: 'DELETE' });
+        if (response.ok) {
+          renderStudents();
+        } else {
+          alert("Lỗi khi xóa học sinh.");
+        }
+      } catch (error) {
+        alert("Lỗi kết nối đến máy chủ.");
+      }
+    }
+    
+    async function editStudent(id) {
+      alert('Chức năng sửa học sinh chưa được triển khai.');
+    }
+    
+    async function resetStudent(id) {
+      alert('Chức năng reset mật khẩu học sinh chưa được triển khai.');
+    }
+    
+    // --- Assign Test ---
+    async function renderAssigns() {
+      const assignList = document.getElementById('assigns-list');
+      assignList.innerHTML = '';
+      const assignTestSelect = document.getElementById('assign-test');
+      const assignStudentSelect = document.getElementById('assign-student');
+      assignTestSelect.innerHTML = '';
+      assignStudentSelect.innerHTML = '';
+
+      try {
+        const [testsResponse, usersResponse, assignsResponse] = await Promise.all([
+          fetch(`${serverUrl}/tests`),
+          fetch(`${serverUrl}/users`),
+          fetch(`${serverUrl}/assigns`)
+        ]);
+
+        const tests = await testsResponse.json();
+        const users = await usersResponse.json();
+        const assigns = await assignsResponse.json();
+
+        tests.forEach(t => {
+          const option = document.createElement('option');
+          option.value = t.id;
+          option.textContent = t.name;
+          assignTestSelect.appendChild(option);
+        });
+
+        users.filter(u => u.role === 'student').forEach(s => {
+          const option = document.createElement('option');
+          option.value = s.id;
+          option.textContent = s.user;
+          assignStudentSelect.appendChild(option);
+        });
+
+        assigns.forEach(a => {
+          const test = tests.find(t => t.id === a.testId) || {};
+	const testName = test.name;
+	const subjectName = SUBJECT_NAMES[test.subject] || '-';
+	const studentName = (users.find(u => u.id === a.studentId) || {}).user;
+
+	const item = document.createElement('div');
+	item.innerHTML = `<p>
+  	<strong>${escapeHtml(testName)}</strong> 
+  	(Môn: ${subjectName}) 
+  	cho <strong>${escapeHtml(studentName)}</strong> 
+  	(Hạn chót: ${a.deadline})
+	</p>`;
+	assignList.appendChild(item);
+        });
+      } catch (error) {
+        alert("Lỗi khi tải dữ liệu giao đề.");
+      }
+    }
+
+    async function assignTest() {
+      const testId = document.getElementById('assign-test').value;
+      const studentId = document.getElementById('assign-student').value;
+      const deadline = document.getElementById('assign-deadline').value;
+
+      if (!testId || !studentId || !deadline) {
+        alert("Vui lòng chọn bài kiểm tra, học sinh và hạn chót.");
+        return;
+      }
+      
+      const newAssign = { testId, studentId, deadline, status: 'assigned' };
+
+      try {
+        const response = await fetch(`${serverUrl}/assigns`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(newAssign),
+        });
+        if (response.ok) {
+          alert("Giao đề thành công!");
+          renderAssigns();
+        } else {
+          alert("Lỗi khi giao đề.");
+        }
+      } catch (error) {
+        alert("Lỗi kết nối đến máy chủ.");
+      }
+    }
+
+    // --- Student View ---
+    async function renderStudentTests(studentId) {
+      const testList = document.getElementById('assigned-tests-list');
+      testList.innerHTML = '';
+      try {
+        const response = await fetch(`${serverUrl}/assigns?studentId=${studentId}`);
+        const assigns = await response.json();
+        const testsResponse = await fetch(`${serverUrl}/tests`);
+        const tests = await testsResponse.json();
+
+        assigns.forEach(assign => {
+          const test = tests.find(t => t.id === assign.testId);
+          if (test) {
+            const item = document.createElement('div');
+            item.classList.add('student-test-item');
+            item.innerHTML = `
+              <h4>${escapeHtml(test.name)}</h4>
+              <p>Thời gian: ${test.time} phút</p>
+              <p>Hạn chót: ${assign.deadline}</p>
+              <p>Trạng thái: ${assign.status === 'completed' ? 'Đã làm xong' : 'Chưa làm'}</p>
+              ${assign.status === 'assigned' ? `<button class="btn" onclick="startTest('${test.id}')">Làm bài</button>` : ''}
+            `;
+            testList.appendChild(item);
+          }
+        });
+      } catch (error) {
+        console.error('Lỗi khi tải danh sách bài kiểm tra đã giao:', error);
+        alert('Lỗi khi tải danh sách bài kiểm tra đã giao.');
+      }
+    }
+    
+    // --- Result Management ---
+    async function renderResults() {
+      const resultsList = document.getElementById('results-list');
+      resultsList.innerHTML = '';
+      try {
+        const [resultsResponse, testsResponse, usersResponse] = await Promise.all([
+          fetch(`${serverUrl}/results`),
+          fetch(`${serverUrl}/tests`),
+          fetch(`${serverUrl}/users`)
+        ]);
+
+        const results = await resultsResponse.json();
+        const tests = await testsResponse.json();
+        const users = await usersResponse.json();
+
+        results.forEach(result => {
+          const student = users.find(u => u.id === result.studentId);
+          const test = tests.find(t => t.id === result.testId);
+          
+          if (student && test) {
+            const item = document.createElement('div');
+            item.classList.add('test-item');
+            item.innerHTML = `
+              <h3>Kết quả: ${escapeHtml(test.name)}</h3>
+              <p>Học sinh: ${escapeHtml(student.user)}</p>
+              <p>Điểm: ${result.score} / ${result.maxScore}</p>
+              <p>Thời gian làm bài: ${result.timeTaken} giây</p>
+              <button onclick="viewResultDetails('${result.id}')" class="inline-btn">Xem chi tiết</button>
+            `;
+            resultsList.appendChild(item);
+          }
+        });
+      } catch (error) {
+        alert("Lỗi khi tải kết quả.");
+      }
+    }
+
+    async function renderStudentResults(studentId) {
+      const resultsList = document.getElementById('student-results-list');
+      resultsList.innerHTML = '';
+      try {
+        const [resultsResponse, testsResponse] = await Promise.all([
+          fetch(`${serverUrl}/results?studentId=${studentId}`),
+          fetch(`${serverUrl}/tests`)
+        ]);
+        const results = await resultsResponse.json();
+        const tests = await testsResponse.json();
+        
+        results.forEach(result => {
+          const test = tests.find(t => t.id === result.testId);
+          if (test) {
+            const item = document.createElement('div');
+            item.classList.add('test-item');
+            item.innerHTML = `
+              <h3>Bài làm: ${escapeHtml(test.name)}</h3>
+              <p>Điểm: ${result.score} / ${result.maxScore}</p>
+              <p>Thời gian làm bài: ${result.timeTaken} giây</p>
+              <button onclick="viewResultDetails('${result.id}')" class="inline-btn">Xem chi tiết</button>
+            `;
+            resultsList.appendChild(item);
+          }
+        });
+      } catch (error) {
+        alert("Lỗi khi tải lịch sử bài làm.");
+      }
+    }
+    
+    // --- Other Helper Functions ---
+    function shuffle(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+      return array;
+    }
+
+    function toggleOptions() {
+      const type = document.getElementById('q-type').value;
+      document.getElementById('q-options').style.display = type === 'mc' ? 'block' : 'none';
+    }
+
+    function addOption() {
+      const optionsList = document.getElementById('options-list');
+      const newOption = document.createElement('div');
+      newOption.classList.add('option-item');
+      newOption.innerHTML = `
+        <input type="text" placeholder="Đáp án" class="option-input" />
+        <input type="checkbox" class="option-correct" />
+        <button onclick="removeOption(this)">-</button>
+      `;
+      optionsList.appendChild(newOption);
+    }
+    
+function editTest(id){
+  // Tìm bài kiểm tra trong bộ nhớ
+  const tests = load(K_TESTS);
+  const t = tests.find(x => x.id === id);
+  if(!t) return alert('Không tìm thấy đề');
+
+  // Lưu ID của bài kiểm tra đang sửa
+  editingTestId = id;
+
+  // Điền thông tin vào form
+  document.getElementById('test-title').value = t.title;
+  document.getElementById('test-count').value = t.qids.length; // Hiển thị số câu hỏi hiện tại
+
+  // Ẩn nút "Tạo đề" và hiện nút "Cập nhật"
+  document.getElementById('btn-create-test').classList.add('hidden');
+  document.getElementById('btn-create-manual').classList.add('hidden');
+  document.getElementById('btn-update-test').classList.remove('hidden');
+  document.getElementById('btn-cancel-edit').classList.remove('hidden');
+
+  alert('Đã tải thông tin đề để sửa đổi. Vui lòng chỉnh sửa tại form "Tạo đề kiểm tra".');
+}
+
+function saveEditTest(){
+  if(!editingTestId) return;
+
+  const title = document.getElementById('test-title').value.trim();
+  const count = Number(document.getElementById('test-count').value)||0;
+
+  if(!title){ alert('Nhập tên đề'); return }
+  if(count < 1){ alert('Số câu >= 1'); return }
+
+  let tests = load(K_TESTS);
+  const idx = tests.findIndex(x => x.id === editingTestId);
+  if(idx === -1) return;
+
+  // Lấy các câu hỏi mới (tương tự như khi tạo đề ngẫu nhiên)
+  let qs = load(K_Q);
+  const fSubject = document.getElementById('filter-subject').value;
+  if(fSubject){ qs = qs.filter(q => q.subject === fSubject); }
+  const fLevel = document.getElementById('filter-level').value;
+  if(fLevel){ qs = qs.filter(q => q.level === fLevel); }
+
+  if(count > qs.length) return alert('Số câu vượt quá ngân hàng (sau khi lọc)');
+
+  const copy = [...qs];
+  for(let i=copy.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [copy[i],copy[j]]=[copy[j],copy[i]]
+  }
+  const picked = copy.slice(0, count).map(q => q.id);
+
+  // Cập nhật thông tin
+  tests[idx].title = title;
+  tests[idx].count = count;
+  tests[idx].qids = picked;
+
+  save(K_TESTS, tests);
+  clearTestForm();
+  renderTests();
+  alert('Cập nhật đề thành công!');
+}
+    function removeOption(btn) {
+      btn.parentElement.remove();
+    }
+  </script>
+</body>
+</html>
