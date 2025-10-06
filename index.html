@@ -1,4 +1,3 @@
-
 <html lang="vi">
 <head>
   <meta charset="utf-8" />
@@ -28,150 +27,263 @@
 .btn-delete:hover {
   background-color: #d32f2f;
 }
-    body { font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, Arial; background:#f3f4f6; margin:0 }
-    .container { max-width:1100px; margin:28px auto; padding:20px }
-    header { display:flex;justify-content:space-between;align-items:center }
-    h1 { margin:0; font-size:20px }
-    #tab-switcher { display:flex; margin-top:16px; border-bottom:1px solid #ddd }
-    .tab-button {
-      padding:10px 15px;
-      cursor:pointer;
-      background:#fff;
-      border:1px solid #ddd;
-      border-bottom:none;
-      border-top-left-radius:8px;
-      border-top-right-radius:8px;
-      margin-right:4px;
-      transition:background-color .3s
-    }
-    .tab-button:hover { background-color:#f0f0f0 }
-    .tab-button.active {
-      background-color:#007bff;
-      color:#fff;
-      border-color:#007bff
-    }
-    .tab-content { display:none; padding:20px 0 }
-    .tab-content.active { display:block }
-    .form-group { margin-bottom:15px }
-    label { display:block; margin-bottom:5px; font-weight:bold }
-    input[type=text], input[type=password], select, textarea, input[type=number], input[type=date], input[type=datetime-local] {
-      width:calc(100% - 22px);
-      padding:10px;
-      border:1px solid #ccc;
-      border-radius:4px;
-      box-sizing:border-box
-    }
-    .login-form {
-      max-width:400px;
-      margin:50px auto;
-      padding:20px;
-      border:1px solid #ccc;
-      border-radius:8px;
-      background-color:#fff
-    }
-    #login-msg { color:red; margin-top:10px }
-    .btn {
-      display:inline-block;
-      padding:10px 20px;
-      color:#fff;
-      background-color:#007bff;
-      border:none;
-      border-radius:4px;
-      cursor:pointer;
-      text-align:center;
-      transition:background-color .3s
-    }
-    .btn:hover { background-color:#0056b3 }
-    .btn.danger { background-color:#dc3545 }
-    .btn.danger:hover { background-color:#c82333 }
-    .btn-create-test { background-color: #28a745; margin-bottom: 20px;}
-    .test-item {
-      border: 1px solid #ccc;
-      padding: 15px;
-      margin-bottom: 15px;
-      border-radius: 8px;
-      background-color: #f9f9f9;
-    }
-    .test-item h3 { margin-top: 0; }
-    .test-item p { margin-bottom: 5px; }
-    .inline-btn {
-      padding: 5px 10px;
-      border-radius: 4px;
-      cursor: pointer;
-      border: none;
-      color: white;
-      margin-right: 5px;
-    }
-    .inline-btn.danger { background-color: #dc3545; }
-    .inline-btn.muted { background-color: #6c757d; }
-    .student-test-item {
-      border: 1px solid #ccc;
-      padding: 10px;
-      margin-bottom: 10px;
-      border-radius: 5px;
-    }
-    .student-test-item h4 { margin: 0 0 10px; }
-    .question {
-      margin-bottom: 10px;
-      padding: 10px;
-      border: 1px solid #eee;
-      border-radius: 4px;
-    }
-    .question.correct { border-color: green; background-color: #e6ffe6; }
-    .question.incorrect { border-color: red; background-color: #ffe6e6; }
-    .options label {
-      display: inline-block;
-      margin-right: 15px;
-    }
-    .modal {
-      display: none;
-      position: fixed;
-      z-index: 1;
-      left: 0;
-      top: 0;
-      width: 100%;
-      height: 100%;
-      overflow: auto;
-      background-color: rgba(0,0,0,0.4);
-      padding-top: 60px;
-    }
-    .modal-content {
-      background-color: #fefefe;
-      margin: 5% auto;
-      padding: 20px;
-      border: 1px solid #888;
-      width: 80%;
-    }
-    .close {
-      color: #aaa;
-      float: right;
-      font-size: 28px;
-      font-weight: bold;
-    }
-	  
-    .close:hover,
-    .close:focus {
-      color: black;
-      text-decoration: none;
-      cursor: pointer;
-    }
-	  
-	.page-title {
- 	 text-align: center;
- 	 margin-top: 40px;
- 	 margin-bottom: 20px;
-	}
+    body {
+  font-family: Inter, system-ui, Arial, sans-serif;
+  background: #f0f2f5; /* nền nhẹ */
+  margin: 0;
+  padding: 0;
+  color: #333;
+}
 
-	.page-title h1 {
-	  font-size: 28px;
-	  font-weight: bold;
- 	 color: #333;
-	}
+/* Tiêu đề chính */
+.page-title {
+  text-align: center;
+  margin: 30px 0;
+}
+.page-title h1 {
+  font-size: 28px;
+  font-weight: bold;
+  color: #222;
+}
 
-	  
+/* Container chính */
+.container {
+  max-width: 1100px;
+  margin: 20px auto;
+  padding: 20px;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+/* Login box */
+.login-form {
+  max-width: 400px;
+  margin: 0 auto;
+  padding: 20px;
+  border-radius: 8px;
+  background: #fafafa;
+  border: 1px solid #ddd;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+.login-form h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  font-weight: bold;
+}
+
+/* Form input */
+input[type=text], input[type=password], select, textarea, input[type=number], input[type=date], input[type=datetime-local] {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  margin-bottom: 10px;
+  box-sizing: border-box;
+}
+
+/* Button */
+.btn {
+  display: inline-block;
+  padding: 10px 20px;
+  color: #fff;
+  background-color: #007bff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  text-align: center;
+  transition: background-color .3s, transform .1s;
+}
+.btn:hover { background-color: #0056b3; transform: scale(1.02); }
+.btn.danger { background-color: #dc3545; }
+.btn.danger:hover { background-color: #b02a37; }
+
+/* Tab */
+#tab-switcher {
+  display: flex;
+  margin-top: 16px;
+  border-bottom: 2px solid #ddd;
+}
+.tab-button {
+  padding: 10px 15px;
+  cursor: pointer;
+  background: #f9f9f9;
+  border: 1px solid #ddd;
+  border-bottom: none;
+  border-radius: 8px 8px 0 0;
+  margin-right: 5px;
+  transition: all .3s;
+}
+.tab-button:hover { background: #e9ecef; }
+.tab-button.active {
+  background: #007bff;
+  color: #fff;
+  border-color: #007bff;
+}
+
+/* Box nội dung trong mỗi tab */
+.tab-content {
+  display: none;
+  padding: 20px;
+  background: #fafafa;
+  border: 1px solid #ddd;
+  border-radius: 0 0 8px 8px;
+  margin-bottom: 20px;
+}
+.tab-content.active { display: block; }
+
+/* Test item */
+.test-item, .student-test-item {
+  border: 1px solid #ddd;
+  padding: 15px;
+  margin-bottom: 15px;
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+.test-item h3, .student-test-item h4 { margin-top: 0; }
+
+/* Question */
+.question {
+  margin-bottom: 15px;
+  padding: 10px;
+  border: 1px solid #eee;
+  border-radius: 6px;
+  background: #fdfdfd;
+}
+.question.correct { border-color: green; background: #e6ffe6; }
+.question.incorrect { border-color: red; background: #ffe6e6; }
+
+/* Table */
+table {
+  border-collapse: collapse;
+  width: 100%;
+  margin-top: 15px;
+  background: #fff;
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+table th, table td {
+  padding: 10px;
+  border: 1px solid #ddd;
+  text-align: left;
+}
+table th {
+  background: #f1f1f1;
+  font-weight: bold;
+}
+/* ===================== TEACHER THEME ===================== */
+#teacher-container {
+  background: #f8fbff; /* nền xanh nhạt */
+}
+#teacher-container header h1 {
+  color: #0056b3;
+}
+#teacher-container .btn {
+  background-color: #007bff;
+}
+#teacher-container .btn:hover {
+  background-color: #0056b3;
+}
+#teacher-container .tab-button.active {
+  background: #007bff;
+  color: #fff;
+  border-color: #007bff;
+}
+
+/* ===================== STUDENT THEME ===================== */
+#student-container {
+  background: #f9fff8; /* nền xanh lá nhạt */
+}
+#student-container header h1 {
+  color: #2e7d32;
+}
+#student-container .btn {
+  background-color: #28a745;
+}
+#student-container .btn:hover {
+  background-color: #1e7e34;
+}
+#student-container .tab-button.active {
+  background: #28a745;
+  color: #fff;
+  border-color: #28a745;
+}
+
+/* ===================== BOX CHUNG ===================== */
+.container {
+  max-width: 1100px;
+  margin: 20px auto;
+  padding: 20px;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+/* Nút Đăng xuất màu đỏ */
+.btn.logout {
+  background-color: #dc3545 !important;
+  color: #fff !important;
+  border: none;
+}
+.btn.logout:hover {
+  background-color: #b02a37 !important;
+}
+
+#login-msg {
+margin-top: 10px;
+text-align: left;
+font-weight: 600;
+font-size: 14px;
+color: #dc3545; / đỏ chuẩn /
+}
+
+/* Nền tối */
+.modal {
+  display: none; /* ẩn mặc định */
+  position: fixed;
+  z-index: 1000;
+  left: 0; top: 0;
+  width: 100%; height: 100%;
+  overflow: auto;
+  background-color: rgba(0,0,0,0.5); /* nền mờ */
+}
+
+/* Khung nội dung modal */
+.modal-content {
+  background-color: #fff;
+  margin: 10% auto;
+  padding: 20px;
+  border-radius: 8px;
+  max-width: 500px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  animation: fadeIn .3s;
+}
+
+/* Nút đóng (x) */
+.modal .close {
+  color: #aaa;
+  float: right;
+  font-size: 22px;
+  font-weight: bold;
+  cursor: pointer;
+}
+.modal .close:hover {
+  color: #000;
+}
+
+/* Hiệu ứng */
+@keyframes fadeIn {
+  from {opacity: 0; transform: translateY(-20px);}
+  to {opacity: 1; transform: translateY(0);}
+}
+
+
   </style>
 </head>
 <body>
+
   <div class="page-title">
     <h1>Hệ thống quản lý và làm bài trắc nghiệm</h1>
   </div>
@@ -190,10 +302,11 @@
       <div id="login-msg"></div>
     </div>
   </div>
+
   <div class="container" id="teacher-container" style="display:none;">
     <header>
       <h1>Chào mừng giáo viên <span id="teacher-name"></span></h1>
-      <button class="btn danger" onclick="logout()">Đăng xuất</button>
+      <button class="btn logout" onclick="logout()">Đăng xuất</button>
     </header>
     <div id="tab-switcher">
       <div class="tab-button active" onclick="showTab('tab-q', this)">Ngân hàng câu hỏi</div>
@@ -401,40 +514,51 @@
       <div id="tests-list"></div>
     </div>
     
-    <div id="edit-test-modal" class="modal">
-      <div class="modal-content">
-        <span class="close" onclick="document.getElementById('edit-test-modal').style.display='none'">&times;</span>
-        <h3>Sửa bài kiểm tra</h3>
-        <div class="form-group">
-          <label for="edit-test-id">Mã bài kiểm tra:</label>
-          <input type="text" id="edit-test-id" disabled />
-        </div>
-        <div class="form-group">
-          <label for="edit-test-name">Tên bài kiểm tra:</label>
-          <input type="text" id="edit-test-name" />
-        </div>
-        <div class="form-group">
-          <label for="edit-test-time">Thời gian (phút):</label>
-          <input type="number" id="edit-test-time" min="1" />
-        </div>
-        <div class="form-group">
-          <label for="edit-test-subject">Môn học:</label>
-          <select id="edit-test-subject">
-            <option value="math">Toán</option>
-            <option value="literature">Văn</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label for="edit-test-level">Khối:</label>
-          <select id="edit-test-level">
-            <option value="10">10</option>
-            <option value="11">11</option>
-            <option value="12">12</option>
-          </select>
-        </div>
-        <button class="btn" onclick="saveEditTest()">Lưu</button>
-      </div>
+<div id="edit-test-modal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="document.getElementById('edit-test-modal').style.display='none'">&times;</span>
+    <h3>Sửa bài kiểm tra</h3>
+    <input type="hidden" id="edit-test-id">
+
+    <div class="form-group">
+      <label>Tên bài kiểm tra:</label>
+      <input type="text" id="edit-test-name">
     </div>
+
+    <div class="form-group">
+      <label>Thời gian (phút):</label>
+      <input type="number" id="edit-test-duration">
+    </div>
+
+    <div class="form-group">
+      <label>Môn học:</label>
+      <select id="edit-test-subject">
+        <option value="math">Toán</option>
+        <option value="literature">Văn</option>
+	<option value="english">Tiếng Anh</option>
+	<option value="physics">Vật lý</option>
+	<option value="chemistry">Hóa học</option>
+	<option value="biology">Sinh học</option>
+	<option value="history">Lịch sử</option>
+	<option value="geography">Địa lý</option>
+	<option value="civic">GDCD</option>
+	<option value="it">Tin học</option>
+      </select>
+    </div>
+<div class="form-group">
+      <label>Khối:</label>
+      <select id="edit-test-level">
+        <option value="10">10</option>
+        <option value="11">11</option>
+        <option value="12">12</option>
+      </select>
+    </div>
+
+    <button class="btn" onclick="updateTest()">Lưu</button>
+    <button class="btn logout" onclick="document.getElementById('edit-test-modal').style.display='none'">Hủy</button>
+  </div>
+</div>
+
 
 
     <div id="tab-assign" class="tab-content">
@@ -506,7 +630,7 @@
   <div class="container" id="student-container" style="display:none;">
     <header>
       <h1>Chào mừng học sinh <span id="student-name"></span></h1>
-      <button class="btn danger" onclick="logout()">Đăng xuất</button>
+     <button class="btn logout" onclick="logout()">Đăng xuất</button>
     </header>
     <h3>Bài kiểm tra được giao</h3>
     <div id="assigned-tests-list"></div>
@@ -575,6 +699,9 @@ const SUBJECT_NAMES = {
       }
     });
 
+
+
+
     function logout() {
       document.getElementById('login-container').style.display = 'block';
       document.getElementById('teacher-container').style.display = 'none';
@@ -598,7 +725,8 @@ const SUBJECT_NAMES = {
       renderStudentTests(user.id);
       renderStudentResults(user.id);
     }
-    
+
+
     // --- Question Management (CRUD) ---
     async function addQuestion() {
       const qText = document.getElementById('q-text').value;
@@ -948,9 +1076,10 @@ async function submitTest(testId, assignId, studentId) {
         
         document.getElementById('edit-test-id').value = test.id;
         document.getElementById('edit-test-name').value = test.name;
-        document.getElementById('edit-test-time').value = test.time;
+        // Chú ý: input trong modal là 'edit-test-duration'
+        document.getElementById('edit-test-duration').value = test.time; 
         document.getElementById('edit-test-subject').value = test.subject;
-        document.getElementById('edit-test-level').value = test.level;
+        document.getElementById('edit-test-level').value = test.level; // Thêm dòng này
         
         document.getElementById('edit-test-modal').style.display = 'block';
       } catch (error) {
@@ -958,21 +1087,33 @@ async function submitTest(testId, assignId, studentId) {
       }
     }
 
-    async function saveEditTest() {
+    // HÀM MỚI ĐƯỢC THÊM/SỬA ĐỂ NÚT 'LƯU' TRONG MODAL SỬA BÀI KIỂM TRA HOẠT ĐỘNG
+    async function updateTest() {
       const id = document.getElementById('edit-test-id').value;
       const name = document.getElementById('edit-test-name').value;
-      const time = parseInt(document.getElementById('edit-test-time').value);
+      // Lấy giá trị từ input có id là 'edit-test-duration'
+      const time = parseInt(document.getElementById('edit-test-duration').value); 
       const subject = document.getElementById('edit-test-subject').value;
-      const level = document.getElementById('edit-test-level').value;
+      const level = document.getElementById('edit-test-level').value; 
       
       if (!name || isNaN(time)) {
         alert("Vui lòng nhập tên và thời gian.");
         return;
       }
 
-      const updatedTest = { name, time, subject, level };
-      
       try {
+        // Tải lại bài kiểm tra cũ để giữ lại danh sách câu hỏi (questions)
+        const oldTestRes = await fetch(`${serverUrl}/tests/${id}`);
+        const oldTest = await oldTestRes.json();
+
+        const updatedTest = { 
+            ...oldTest, // Giữ lại tất cả thuộc tính cũ (như questions, teacherId)
+            name: name, 
+            time: time, 
+            subject: subject,
+            level: level
+        };
+        
         const response = await fetch(`${serverUrl}/tests/${id}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
@@ -1546,67 +1687,11 @@ async function viewResultDetails(resultId) {
       optionsList.appendChild(newOption);
     }
     
-function editTest(id){
-  // Tìm bài kiểm tra trong bộ nhớ
-  const tests = load(K_TESTS);
-  const t = tests.find(x => x.id === id);
-  if(!t) return alert('Không tìm thấy đề');
-
-  // Lưu ID của bài kiểm tra đang sửa
-  editingTestId = id;
-
-  // Điền thông tin vào form
-  document.getElementById('test-title').value = t.title;
-  document.getElementById('test-count').value = t.qids.length; // Hiển thị số câu hỏi hiện tại
-
-  // Ẩn nút "Tạo đề" và hiện nút "Cập nhật"
-  document.getElementById('btn-create-test').classList.add('hidden');
-  document.getElementById('btn-create-manual').classList.add('hidden');
-  document.getElementById('btn-update-test').classList.remove('hidden');
-  document.getElementById('btn-cancel-edit').classList.remove('hidden');
-
-  alert('Đã tải thông tin đề để sửa đổi. Vui lòng chỉnh sửa tại form "Tạo đề kiểm tra".');
-}
-
-function saveEditTest(){
-  if(!editingTestId) return;
-
-  const title = document.getElementById('test-title').value.trim();
-  const count = Number(document.getElementById('test-count').value)||0;
-
-  if(!title){ alert('Nhập tên đề'); return }
-  if(count < 1){ alert('Số câu >= 1'); return }
-
-  let tests = load(K_TESTS);
-  const idx = tests.findIndex(x => x.id === editingTestId);
-  if(idx === -1) return;
-
-  // Lấy các câu hỏi mới (tương tự như khi tạo đề ngẫu nhiên)
-  let qs = load(K_Q);
-  const fSubject = document.getElementById('filter-subject').value;
-  if(fSubject){ qs = qs.filter(q => q.subject === fSubject); }
-  const fLevel = document.getElementById('filter-level').value;
-  if(fLevel){ qs = qs.filter(q => q.level === fLevel); }
-
-  if(count > qs.length) return alert('Số câu vượt quá ngân hàng (sau khi lọc)');
-
-  const copy = [...qs];
-  for(let i=copy.length-1;i>0;i--){
-    const j=Math.floor(Math.random()*(i+1));
-    [copy[i],copy[j]]=[copy[j],copy[i]]
-  }
-  const picked = copy.slice(0, count).map(q => q.id);
-
-  // Cập nhật thông tin
-  tests[idx].title = title;
-  tests[idx].count = count;
-  tests[idx].qids = picked;
-
-  save(K_TESTS, tests);
-  clearTestForm();
-  renderTests();
-  alert('Cập nhật đề thành công!');
-}
+// Các hàm sau đây đã bị xóa/thay thế để tránh xung đột và lỗi cú pháp.
+/*
+function editTest(id){...} 
+function saveEditTest(){...} 
+*/
     function removeOption(btn) {
       btn.parentElement.remove();
     }
@@ -1614,5 +1699,3 @@ function saveEditTest(){
 </body>
 
 </html>
-
-
