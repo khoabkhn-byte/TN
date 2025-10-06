@@ -216,10 +216,14 @@ app.listen(PORT, () => {
 
 app.get("/api/results/:id", (req, res) => {
   const id = req.params.id;
-  const result = results.find(r => r.id === id);
-  if (!result) return res.status(404).json({ message: "Not found" });
+  const result = results.find(r => r.id == id); // dùng == để so sánh string/number
+  if (!result) {
+    return res.status(404).json({ message: "Not found" });
+  }
   res.json(result);
 });
+
+
 
 
 
