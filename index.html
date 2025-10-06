@@ -1115,42 +1115,74 @@ function addEditOption() {
     }
 
 	 // --- làm bài --- 
-	  async function startTest(testId) {
+// Hiển thị các bài kiểm tra đã giao cho học sinh
+async function renderStudentTests(studentId) {
+  const testList = document.getElementById('assigned-tests-list');
+  testList.innerHTML = '';
   try {
-    // Lấy thông tin đề thi
-    const response = await fetch(`${serverUrl}/tests/${testId}`);
-    const test = await response.json();
+    const response = await fetch(`${serverUrl}/assigns?studentId=${studentId}`);
+    const assigns = await response.json();
+    const testsResponse = await fetch(`${serverUrl}/tests`);
+    const tests = await testsResponse.json();
 
-    // Hiển thị giao diện làm bài
-    const container = document.getElementById('assigned-tests-list');
-    container.innerHTML = `<h3>${test.name}</h3><div id="do-test"></div><button class="btn" onclick="submitTest('${test.id}')">Nộp bài</button>`;
-
-    const doTestDiv = document.getElementById('do-test');
-    test.questions.forEach((q, idx) => {
-      const div = document.createElement('div');
-      div.classList.add('question');
-      div.innerHTML = `
-        <p><strong>Câu ${idx + 1}:</strong> ${q.q}</p>
-        <div class="options">
-          ${q.options.map((opt, i) => `
-            <label>
-              <input type="radio" name="q${q.id}" value="${i}">
-              ${opt.text}
-            </label>
-          `).join('')}
-        </div>
-      `;
-      doTestDiv.appendChild(div);
+    assigns.forEach(assign => {
+      const test = tests.find(t => t.id === assign.testId);
+      if (test) {
+        const item = document.createElement('div');
+        item.classList.add('student-test-item');
+        item.innerHTML = `
+          <h4>${escapeHtml(test.name)}</h4>
+          <p>Thời gian: ${test.time} phút</p>
+          <p>Hạn chót: ${assign.deadline}</p>
+          <p>Trạng thái: ${assign.status === 'completed' ? 'Đã làm xong' : 'Chưa làm'}</p>
+          ${assign.status === 'assigned' 
+            ? `<button class="btn" onclick='startTest(${JSON.stringify(test)}, "${assign.id}", "${studentId}")'>Làm bài</button>` 
+            : ''}
+        `;
+        testList.appendChild(item);
+      }
     });
-  } catch (err) {
-    alert("Không tải được bài kiểm tra.");
+  } catch (error) {
+    console.error('Lỗi khi tải danh sách bài kiểm tra đã giao:', error);
+    alert('Lỗi khi tải danh sách bài kiểm tra đã giao.');
   }
 }
-async function submitTest(testId) {
+
+// Hiển thị giao diện làm bài
+function startTest(test, assignId, studentId) {
+  const container = document.getElementById('assigned-tests-list');
+  container.innerHTML = `
+    <h3>${escapeHtml(test.name)}</h3>
+    <div id="do-test"></div>
+    <button class="btn" onclick="submitTest('${test.id}', '${assignId}', '${studentId}')">Nộp bài</button>
+  `;
+
+  const doTestDiv = document.getElementById('do-test');
+  test.questions.forEach((q, idx) => {
+    const div = document.createElement('div');
+    div.classList.add('question');
+    div.innerHTML = `
+      <p><strong>Câu ${idx + 1}:</strong> ${q.q}</p>
+      <div class="options">
+        ${q.options.map((opt, i) => `
+          <label>
+            <input type="radio" name="q${q.id}" value="${i}">
+            ${opt.text}
+          </label>
+        `).join('')}
+      </div>
+    `;
+    doTestDiv.appendChild(div);
+  });
+}
+
+// Nộp bài và tính điểm
+async function submitTest(testId, assignId, studentId) {
   try {
-    // Lấy test để biết số câu
-    const response = await fetch(`${serverUrl}/tests/${testId}`);
-    const test = await response.json();
+    // Lấy toàn bộ tests để biết chi tiết câu hỏi
+    const testsResponse = await fetch(`${serverUrl}/tests`);
+    const tests = await testsResponse.json();
+    const test = tests.find(t => t.id === testId);
 
     let score = 0, maxScore = 0;
     test.questions.forEach(q => {
@@ -1169,24 +1201,36 @@ async function submitTest(testId) {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        studentId: currentUserId, // cần lưu studentId khi login
+        studentId,
         testId,
         score,
         maxScore,
-        timeTaken: 0 // có thể thêm bộ đếm thời gian
+        timeTaken: 0 // có thể bổ sung đếm giờ sau
       })
     });
 
     if (res.ok) {
       alert(`Nộp bài thành công! Điểm: ${score}/${maxScore}`);
-      renderStudentResults(currentUserId);
+
+      // Cập nhật trạng thái assign -> completed
+      await fetch(`${serverUrl}/assigns/${assignId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'completed' })
+      });
+
+      // Hiển thị lại danh sách và lịch sử
+      renderStudentTests(studentId);
+      renderStudentResults(studentId);
     } else {
       alert("Lỗi khi nộp bài.");
     }
   } catch (err) {
+    console.error(err);
     alert("Không thể nộp bài.");
   }
 }
+
 
 
 	  
@@ -1351,3 +1395,4 @@ function saveEditTest(){
 </body>
 
 </html>
+
