@@ -1,4 +1,4 @@
-<!doctype html>
+// Hiển thị các bài kiểm tra đã giao cho học sinh<!doctype html>
 <html lang="vi">
 <head>
   <meta charset="utf-8" />
@@ -493,9 +493,7 @@
     </header>
     <h3>Bài kiểm tra được giao</h3>
     <div id="assigned-tests-list"></div>
-    <h3>Lịch sử bài làm</h3>
-    <div id="student-results-list"></div>
-  </div>
+
 
   <script>
 
@@ -784,6 +782,76 @@ function addEditOption() {
   `;
   list.appendChild(div);
 }
+
+
+// Nộp bài và tính điểm, lưu cả đáp án học sinh đã chọn
+async function submitTest(testId, assignId, studentId) {
+  clearInterval(countdownInterval);
+
+  try {
+    const testsResponse = await fetch(`${serverUrl}/tests`);
+    const tests = await testsResponse.json();
+    const test = tests.find(t => t.id === testId);
+
+    let score = 0, maxScore = 0;
+    const answers = {};
+
+    test.questions.forEach(q => {
+      maxScore += q.points;
+      const selected = document.querySelector(`input[name="q${q.id}"]:checked`);
+      if (selected) {
+        const answerIndex = parseInt(selected.value);
+        answers[q.id] = answerIndex;
+        if (q.options[answerIndex].correct) {
+          score += q.points;
+        }
+      } else {
+        answers[q.id] = null;
+      }
+    });
+
+    // Lưu kết quả
+    const res = await fetch(`${serverUrl}/results`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        studentId,
+        testId,
+        score,
+        maxScore,
+        answers,
+        timeTaken: 0,
+        date: new Date().toISOString()
+      })
+    });
+
+    if (res.ok) {
+      const savedResult = await res.json(); // ✅ nhận lại object đã lưu kèm id
+      console.log("Saved result:", savedResult);
+
+      alert(`Nộp bài thành công! Điểm: ${score}/${maxScore}`);
+
+      // Cập nhật trạng thái bài giao -> completed
+      await fetch(`${serverUrl}/assigns/${assignId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'completed' })
+      });
+
+      // Quay lại danh sách
+      renderStudentTests(studentId);
+
+      // Nếu muốn hiển thị ngay chi tiết có thể gọi:
+      // viewResultDetails(savedResult.id);
+    } else {
+      alert("Lỗi khi nộp bài.");
+    }
+  } catch (err) {
+    console.error("Lỗi khi nộp bài:", err);
+    alert("Không thể nộp bài.");
+  }
+}
+
 
 
     
@@ -1084,119 +1152,211 @@ function addEditOption() {
     }
 
     // --- Student View ---
-    async function renderStudentTests(studentId) {
-      const testList = document.getElementById('assigned-tests-list');
-      testList.innerHTML = '';
-      try {
-        const response = await fetch(`${serverUrl}/assigns?studentId=${studentId}`);
-        const assigns = await response.json();
-        const testsResponse = await fetch(`${serverUrl}/tests`);
-        const tests = await testsResponse.json();
+  
 
-        assigns.forEach(assign => {
-          const test = tests.find(t => t.id === assign.testId);
-          if (test) {
-            const item = document.createElement('div');
-            item.classList.add('student-test-item');
-            item.innerHTML = `
-              <h4>${escapeHtml(test.name)}</h4>
-              <p>Thời gian: ${test.time} phút</p>
-              <p>Hạn chót: ${assign.deadline}</p>
-              <p>Trạng thái: ${assign.status === 'completed' ? 'Đã làm xong' : 'Chưa làm'}</p>
-              ${assign.status === 'assigned' ? `<button class="btn" onclick="startTest('${test.id}')">Làm bài</button>` : ''}
-            `;
-            testList.appendChild(item);
-          }
-        });
-      } catch (error) {
-        console.error('Lỗi khi tải danh sách bài kiểm tra đã giao:', error);
-        alert('Lỗi khi tải danh sách bài kiểm tra đã giao.');
-      }
-    }
-
-	 // --- làm bài --- 
-// Hiển thị các bài kiểm tra đã giao cho học sinh
+// Hiển thị danh sách bài kiểm tra (chưa làm) + bảng lịch sử làm bài (đã làm) + thống kê
 async function renderStudentTests(studentId) {
   const testList = document.getElementById('assigned-tests-list');
-  testList.innerHTML = '';
+  testList.innerHTML = `
+    <div id="summary" style="margin-bottom:15px;font-weight:bold;"></div>
+    <h3>Bài kiểm tra được giao</h3>
+    <div id="assigned-section"></div>
+    <div id="student-results-list"></div>
+    <h3>Lịch sử làm bài</h3>
+    <table border="1" width="100%" cellspacing="0" cellpadding="5" style="margin-top:10px;">
+      <thead>
+        <tr>
+          <th>Tên bài</th>
+          <th>Điểm</th>
+          <th>Ngày làm</th>
+          <th>Thời gian làm (giây)</th>
+          <th>Chi tiết</th>
+        </tr>
+      </thead>
+      <tbody id="history-section"></tbody>
+    </table>
+  `;
+
   try {
-    const response = await fetch(`${serverUrl}/assigns?studentId=${studentId}`);
-    const assigns = await response.json();
-    const testsResponse = await fetch(`${serverUrl}/tests`);
+    const [assignsResponse, testsResponse, resultsResponse] = await Promise.all([
+      fetch(`${serverUrl}/assigns?studentId=${studentId}`),
+      fetch(`${serverUrl}/tests`),
+      fetch(`${serverUrl}/results?studentId=${studentId}`)
+    ]);
+
+    const assigns = await assignsResponse.json();
     const tests = await testsResponse.json();
+    const results = await resultsResponse.json();
+
+    const assignedDiv = document.getElementById('assigned-section');
+    const historyBody = document.getElementById('history-section');
+    const summaryDiv = document.getElementById('summary');
+
+    let countAssigned = 0;
+    let countDone = 0;
+    let totalScore = 0;
+    let totalMax = 0;
 
     assigns.forEach(assign => {
       const test = tests.find(t => t.id === assign.testId);
       if (test) {
-        const item = document.createElement('div');
-        item.classList.add('student-test-item');
-        item.innerHTML = `
-          <h4>${escapeHtml(test.name)}</h4>
-          <p>Thời gian: ${test.time} phút</p>
-          <p>Hạn chót: ${assign.deadline}</p>
-          <p>Trạng thái: ${assign.status === 'completed' ? 'Đã làm xong' : 'Chưa làm'}</p>
-          ${assign.status === 'assigned' 
-            ? `<button class="btn" onclick='startTest(${JSON.stringify(test)}, "${assign.id}", "${studentId}")'>Làm bài</button>` 
-            : ''}
-        `;
-        testList.appendChild(item);
+        // Lấy tất cả kết quả của học sinh cho đề thi này
+        const studentResults = results.filter(r => r.testId === test.id && r.studentId === studentId);
+
+        if (studentResults.length > 0) {
+          studentResults.forEach(result => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+              <td>${escapeHtml(test.name)}</td>
+              <td>${result.score}/${result.maxScore}</td>
+              <td>${result.date || 'Không có dữ liệu'}</td>
+              <td>${result.timeTaken || 0}</td>
+              <td><button class="btn" onclick="viewResultDetails('${result.id}')">Xem</button></td>
+            `;
+            historyBody.appendChild(row);
+
+            countDone++;
+            totalScore += result.score;
+            totalMax += result.maxScore;
+          });
+        } else {
+          // Bài chưa làm
+          const item = document.createElement('div');
+          item.classList.add('student-test-item');
+          item.innerHTML = `
+            <h4>${escapeHtml(test.name)}</h4>
+            <p>Thời gian: ${test.time} phút</p>
+            <p>Hạn chót: ${assign.deadline}</p>
+            <p>Trạng thái: Chưa làm</p>
+            <button class="btn" onclick='startTestSingle(${JSON.stringify(test)}, "${assign.id}", "${studentId}")'>Làm bài</button>
+          `;
+          assignedDiv.appendChild(item);
+          countAssigned++;
+        }
       }
     });
+
+    // Thống kê tổng quan
+    let avgText = "";
+    if (countDone > 0) {
+      const avg = (totalScore / totalMax * 100).toFixed(1);
+      avgText = ` | Điểm trung bình: ${avg}%`;
+    }
+    summaryDiv.innerHTML = `
+      Tổng số bài: ${countAssigned + countDone} | 
+      Chưa làm: ${countAssigned} | 
+      Đã làm: ${countDone}${avgText}
+    `;
   } catch (error) {
-    console.error('Lỗi khi tải danh sách bài kiểm tra đã giao:', error);
-    alert('Lỗi khi tải danh sách bài kiểm tra đã giao.');
+    console.error('Lỗi khi tải danh sách bài kiểm tra:', error);
+    alert('Lỗi khi tải danh sách bài kiểm tra.');
   }
 }
 
-// Hiển thị giao diện làm bài
+
+
+// Khi bấm "Làm bài" thì chỉ hiển thị bài đó
+function startTestSingle(test, assignId, studentId) {
+  const testList = document.getElementById('assigned-tests-list');
+  testList.innerHTML = '';
+  startTest(test, assignId, studentId);
+}
+
+let countdownInterval;
 function startTest(test, assignId, studentId) {
+  window.currentTotalTime = test.time * 60; // tổng thời gian (giây)
+  window.currentTimeLeft = window.currentTotalTime;
+
   const container = document.getElementById('assigned-tests-list');
   container.innerHTML = `
     <h3>${escapeHtml(test.name)}</h3>
+    <p>Thời gian còn lại: <span id="countdown"></span></p>
+    <div class="progress-bar" style="width:100%;background:#ddd;height:20px;margin-bottom:10px;">
+      <div id="time-bar" style="background:#4caf50;width:100%;height:100%;"></div>
+    </div>
     <div id="do-test"></div>
-    <button class="btn" onclick="submitTest('${test.id}', '${assignId}', '${studentId}')">Nộp bài</button>
+    <button class="btn" id="submit-btn"
+      onclick="submitTest('${test.id}', '${assignId}', '${studentId}')">
+      Nộp bài
+    </button>
+    <button class="btn danger" onclick="renderStudentTests('${studentId}')">Quay lại danh sách</button>
   `;
 
+  // Render câu hỏi
   const doTestDiv = document.getElementById('do-test');
   test.questions.forEach((q, idx) => {
     const div = document.createElement('div');
     div.classList.add('question');
     div.innerHTML = `
       <p><strong>Câu ${idx + 1}:</strong> ${q.q}</p>
-      <div class="options">
-        ${q.options.map((opt, i) => `
-          <label>
-            <input type="radio" name="q${q.id}" value="${i}">
-            ${opt.text}
-          </label>
-        `).join('')}
-      </div>
+      ${q.options.map((opt, i) => `
+        <label>
+          <input type="radio" name="q${q.id}" value="${i}">
+          ${opt.text}
+        </label>
+      `).join('<br>')}
     `;
     doTestDiv.appendChild(div);
   });
+
+  // Đồng hồ đếm ngược + progress bar
+  const countdownEl = document.getElementById('countdown');
+  const timeBar = document.getElementById('time-bar');
+
+  function updateClock() {
+    const minutes = Math.floor(window.currentTimeLeft / 60);
+    const seconds = window.currentTimeLeft % 60;
+    countdownEl.textContent = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+
+    const percent = (window.currentTimeLeft / window.currentTotalTime) * 100;
+    timeBar.style.width = percent + "%";
+    if (percent <= 30) timeBar.style.background = "orange";
+    if (percent <= 10) timeBar.style.background = "red";
+  }
+
+  updateClock();
+  clearInterval(countdownInterval);
+  countdownInterval = setInterval(() => {
+    window.currentTimeLeft--;
+    updateClock();
+    if (window.currentTimeLeft <= 0) {
+      clearInterval(countdownInterval);
+      alert("Hết giờ! Bài sẽ được nộp tự động.");
+      document.getElementById('submit-btn').disabled = true;
+      submitTest(test.id, assignId, studentId);
+    }
+  }, 1000);
 }
 
-// Nộp bài và tính điểm
+// Nộp bài
 async function submitTest(testId, assignId, studentId) {
+  clearInterval(countdownInterval);
+
   try {
-    // Lấy toàn bộ tests để biết chi tiết câu hỏi
     const testsResponse = await fetch(`${serverUrl}/tests`);
     const tests = await testsResponse.json();
     const test = tests.find(t => t.id === testId);
 
     let score = 0, maxScore = 0;
+    const answers = {};
+
     test.questions.forEach(q => {
       maxScore += q.points;
       const selected = document.querySelector(`input[name="q${q.id}"]:checked`);
       if (selected) {
         const answerIndex = parseInt(selected.value);
+        answers[q.id] = answerIndex;
         if (q.options[answerIndex].correct) {
           score += q.points;
         }
+      } else {
+        answers[q.id] = null;
       }
     });
 
-    // Gửi kết quả lên server
+    const timeTaken = window.currentTotalTime - window.currentTimeLeft;
+
+    // Lưu kết quả
     const res = await fetch(`${serverUrl}/results`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -1205,29 +1365,71 @@ async function submitTest(testId, assignId, studentId) {
         testId,
         score,
         maxScore,
-        timeTaken: 0 // có thể bổ sung đếm giờ sau
+        answers,
+        timeTaken,
+        date: new Date().toISOString()
       })
     });
 
     if (res.ok) {
       alert(`Nộp bài thành công! Điểm: ${score}/${maxScore}`);
-
-      // Cập nhật trạng thái assign -> completed
       await fetch(`${serverUrl}/assigns/${assignId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: 'completed' })
       });
-
-      // Hiển thị lại danh sách và lịch sử
       renderStudentTests(studentId);
-      renderStudentResults(studentId);
     } else {
       alert("Lỗi khi nộp bài.");
     }
   } catch (err) {
-    console.error(err);
+    console.error("Lỗi khi nộp bài:", err);
     alert("Không thể nộp bài.");
+  }
+}
+
+// Xem chi tiết kết quả
+async function viewResultDetails(resultId) {
+  try {
+    const res = await fetch(`${serverUrl}/results/${resultId}`);
+    if (!res.ok) {
+      alert("Không tìm thấy chi tiết bài làm.");
+      return;
+    }
+    const result = await res.json();
+
+    const testRes = await fetch(`${serverUrl}/tests/${result.testId}`);
+    const test = await testRes.json();
+
+    const container = document.getElementById('assigned-tests-list');
+    container.innerHTML = `
+      <h3>Kết quả: ${escapeHtml(test.name)}</h3>
+      <p>Điểm: ${result.score}/${result.maxScore}</p>
+      <p>Ngày làm: ${result.date || 'Không có dữ liệu'}</p>
+      <p>Thời gian làm: ${result.timeTaken || 0} giây</p>
+      <div id="result-questions"></div>
+      <button class="btn danger" onclick="renderStudentTests('${result.studentId}')">Quay lại lịch sử</button>
+    `;
+
+    const questionsDiv = document.getElementById('result-questions');
+    test.questions.forEach((q, idx) => {
+      const div = document.createElement('div');
+      const chosen = result.answers ? result.answers[q.id] : null;
+      div.innerHTML = `
+        <p><strong>Câu ${idx + 1}:</strong> ${q.q}</p>
+        ${q.options.map((opt, i) => `
+          <div style="margin-left:20px;
+            ${opt.correct ? 'font-weight:bold;color:green;' : ''}
+            ${i == chosen && !opt.correct ? 'color:red;' : ''}">
+            ${i == chosen ? '👉 ' : ''}${opt.text}
+          </div>
+        `).join('')}
+      `;
+      questionsDiv.appendChild(div);
+    });
+  } catch (err) {
+    console.error("Lỗi khi tải chi tiết bài làm:", err);
+    alert("Không thể tải chi tiết bài làm.");
   }
 }
 
