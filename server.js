@@ -231,6 +231,18 @@ app.get("/api/results/:id", (req, res) => {
   }
 });
 
+// GET single test by ID
+app.get('/api/tests/:id', (req, res) => {
+  const { id } = req.params;
+  const db = readDB();
+  const test = db.tests.find(t => t.id === id); // Tìm bài kiểm tra
+  if (test) {
+    res.json(test);
+  } else {
+    res.status(404).json({ message: 'Bài kiểm tra không tồn tại.' });
+  }
+});
+
 
 
 
