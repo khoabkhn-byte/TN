@@ -279,6 +279,87 @@ color: #dc3545; / đỏ chuẩn /
   to {opacity: 1; transform: translateY(0);}
 }
 
+/* ==================================== */
+/* --- CÁC STYLE CHO MODAL (POP-UP) --- */
+/* ==================================== */
+
+.modal {
+  display: none; /* Mặc định ẩn */
+  position: fixed; /* Giữ cố định */
+  z-index: 1000; /* Đảm bảo nằm trên mọi thứ */
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto; /* Cho phép cuộn */
+  background-color: rgba(0, 0, 0, 0.5); /* Nền mờ */
+}
+
+.modal-content {
+  background-color: #fefefe;
+  margin: 5% auto; /* 5% từ trên xuống và căn giữa */
+  padding: 20px;
+  border: 1px solid #888;
+  width: 90%;
+  max-width: 650px; /* Chiều rộng tối đa */
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  position: relative;
+}
+
+.close-button {
+  color: #aaa;
+  float: right;
+  font-size: 32px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.close-button:hover,
+.close-button:focus {
+  color: #333;
+}
+
+/* Điều chỉnh lại style cho form bên trong modal */
+.modal-content h4 {
+    text-align: center;
+    margin-top: 0;
+    color: #007bff;
+}
+
+.modal-content label {
+    display: block;
+    font-weight: bold;
+    margin-top: 10px;
+    margin-bottom: 5px;
+}
+.modal-content textarea {
+    resize: vertical;
+}
+.modal-content input[type="text"],
+.modal-content textarea,
+.modal-content select,
+.modal-content input[type="number"] {
+    width: 100%;
+    padding: 8px;
+    margin: 5px 0;
+    box-sizing: border-box;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+.modal-content .option-item {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 5px;
+    align-items: center;
+}
+.modal-content .option-item input[type="text"] {
+    flex-grow: 1;
+    margin: 0;
+}
+.modal-content .option-correct {
+    width: auto !important;
+}
 
   </style>
 </head>
@@ -317,33 +398,35 @@ color: #dc3545; / đỏ chuẩn /
     </div>
 
     <div id="tab-q" class="tab-content active">
-      <h2>Ngân hàng câu hỏi</h2>
-      <div class="form-group">
-        <label for="q-subject">Môn học</label>
-        <select id="q-subject">
-          <option value="">Tất cả</option>
-          <option value="math">Toán</option>
-          <option value="literature">Văn</option>
-	<option value="english">Tiếng Anh</option>
-	<option value="physics">Vật lý</option>
-	<option value="chemistry">Hóa học</option>
-	<option value="biology">Sinh học</option>
-	<option value="history">Lịch sử</option>
-	<option value="geography">Địa lý</option>
-	<option value="civic">GDCD</option>
-	<option value="it">Tin học</option>
+  <h2>Ngân hàng câu hỏi</h2>
+  <div class="form-group">
+    <label for="q-subject">Môn học</label>
+    <select id="q-subject" onchange="renderQuestions()"> <option value="">Tất cả</option>
+      <option value="math">Toán</option>
+      <option value="literature">Văn</option>
+      <option value="english">Tiếng Anh</option>
+      <option value="physics">Vật lý</option>
+      <option value="chemistry">Hóa học</option>
+      <option value="biology">Sinh học</option>
+      <option value="history">Lịch sử</option>
+      <option value="geography">Địa lý</option>
+      <option value="civic">GDCD</option>
+      <option value="it">Tin học</option>
+    </select>
+    <label for="q-level">Khối</label>
+    <select id="q-level" onchange="renderQuestions()"> <option value="">Tất cả</option>
+      <option value="10">10</option>
+      <option value="11">11</option>
+      <option value="12">12</option>
+    </select>
+    
+    <button class="btn" onclick="renderQuestions()" style="display:none;">Lọc</button> 
+    
+  <button onclick="openModal()" class="btn-primary" style="margin-bottom: 20px;">
+  + Thêm Câu Hỏi
+</button>
 
-        </select>
-        <label for="q-level">Khối</label>
-        <select id="q-level">
-          <option value="">Tất cả</option>
-          <option value="10">10</option>
-          <option value="11">11</option>
-          <option value="12">12</option>
-        </select>
-        <button class="btn" onclick="renderQuestions()">Lọc</button>
-        <button class="btn" onclick="document.getElementById('add-q-form').style.display='block'">+ Thêm câu hỏi</button>
-      </div>
+  </div>
 
 <div id="edit-q-modal" class="modal">
   <div class="modal-content">
@@ -400,12 +483,19 @@ color: #dc3545; / đỏ chuẩn /
 
 
 
-      <div id="add-q-form" style="display:none; border:1px solid #ccc; padding:15px; margin-bottom:20px;">
+  <div id="add-q-modal" class="modal">
+  <div class="modal-content">
+    
+    <span class="close-button" onclick="closeModal()">×</span>
+    
+    <form id="add-q-form-modal">
         <h4>Thêm câu hỏi mới</h4>
+        
         <div class="form-group">
           <label for="q-text">Nội dung câu hỏi:</label>
-          <textarea id="q-text" rows="4"></textarea>
+          <textarea id="q-text" rows="4" required></textarea>
         </div>
+        
         <div class="form-group">
           <label for="q-type">Loại câu hỏi:</label>
           <select id="q-type" onchange="toggleOptions()">
@@ -413,37 +503,35 @@ color: #dc3545; / đỏ chuẩn /
             <option value="essay">Tự luận</option>
           </select>
         </div>
-        <div class="form-group" id="q-options" style="display:block;">
+        
+        <div class="form-group" id="q-options">
           <label>Đáp án:</label>
           <div id="options-list">
-            <div class="option-item">
-              <input type="text" placeholder="Đáp án A" class="option-input" />
-              <input type="checkbox" class="option-correct" />
-              <button onclick="removeOption(this)">-</button>
             </div>
-          </div>
-          <button onclick="addOption()">+ Thêm đáp án</button>
+          <button type="button" onclick="addOption()" class="btn-secondary">+ Thêm đáp án</button>
         </div>
+        
         <div class="form-group">
           <label for="q-points">Điểm:</label>
-          <input type="number" id="q-points" value="1" min="0.1" step="0.1" />
+          <input type="number" id="q-points" value="1" min="0.1" step="0.1" required/>
         </div>
+        
         <div class="form-group">
           <label for="q-subject-new">Môn học:</label>
           <select id="q-subject-new">
             <option value="math">Toán</option>
             <option value="literature">Văn</option>
-	<option value="english">Tiếng Anh</option>
-	<option value="physics">Vật lý</option>
-	<option value="chemistry">Hóa học</option>
-	<option value="biology">Sinh học</option>
-	<option value="history">Lịch sử</option>
-	<option value="geography">Địa lý</option>
-	<option value="civic">GDCD</option>
-	<option value="it">Tin học</option>
-
+            <option value="english">Tiếng Anh</option>
+            <option value="physics">Vật lý</option>
+            <option value="chemistry">Hóa học</option>
+            <option value="biology">Sinh học</option>
+            <option value="history">Lịch sử</option>
+            <option value="geography">Địa lý</option>
+            <option value="civic">GDCD</option>
+            <option value="it">Tin học</option>
           </select>
         </div>
+        
         <div class="form-group">
           <label for="q-level-new">Khối:</label>
           <select id="q-level-new">
@@ -452,8 +540,15 @@ color: #dc3545; / đỏ chuẩn /
             <option value="12">12</option>
           </select>
         </div>
-        <button class="btn" onclick="addQuestion()">Thêm</button>
-      </div>
+        
+        <div style="text-align: right; margin-top: 20px;">
+            <button type="button" class="btn-secondary" onclick="closeModal()">Hủy</button>
+            <button type="submit" class="btn-primary">Lưu & Thêm Câu Hỏi</button>
+        </div>
+    </form>
+    </div>
+</div>
+
       <table id="q-table" border="1" style="width:100%;border-collapse:collapse;">
         <thead>
           <tr>
@@ -470,52 +565,125 @@ color: #dc3545; / đỏ chuẩn /
       </table>
     </div>
 
-    <div id="tab-test" class="tab-content">
-      <h2>Tạo bài kiểm tra</h2>
-      <div id="create-test-form">
-        <div class="form-group">
-          <label for="test-name">Tên bài kiểm tra:</label>
-          <input type="text" id="test-name" />
-        </div>
-        <div class="form-group">
-          <label for="test-time">Thời gian (phút):</label>
-          <input type="number" id="test-time" value="45" min="1" />
-        </div>
-        <div class="form-group">
-          <label for="test-subject">Môn học:</label>
-          <select id="test-subject">
-           <option value="math">Toán</option>
- 	   <option value="literature">Văn</option>
-  	   <option value="english">Tiếng Anh</option>
-  	   <option value="physics">Vật lý</option>
-  	   <option value="chemistry">Hóa học</option>
-  	   <option value="biology">Sinh học</option>
-  	   <option value="history">Lịch sử</option>
-  	   <option value="geography">Địa lý</option>
-  	   <option value="civic">GDCD</option>
-  	   <option value="it">Tin học</option>
-	 </select>
-        </div>
-        <div class="form-group">
-          <label for="test-level">Khối:</label>
-          <select id="test-level">
-            <option value="10">10</option>
-            <option value="11">11</option>
-            <option value="12">12</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label for="test-q-count">Số câu hỏi:</label>
-          <input type="number" id="test-q-count" value="10" min="1" />
-        </div>
-        <button class="btn btn-create-test" onclick="createTest()">Tạo bài kiểm tra</button>
-      </div>
-      <h5>Danh sách bài kiểm tra</h5>
-      <div id="tests-list"></div>
+ <div id="tab-test" class="tab-content">
+  <h2>Tạo bài kiểm tra</h2>
+
+  <div style="display: flex; margin-bottom: 20px;">
+    <button class="btn" style="margin-right: 10px;" onclick="showCreationMode('auto')">Tạo đề ngẫu nhiên</button>
+    <button class="btn" onclick="showCreationMode('manual')">Tạo đề thủ công</button>
+  </div>
+
+  <div id="creation-mode-auto" style="border:1px solid #ccc; padding:15px; margin-bottom: 20px;">
+    <h3>Tạo đề ngẫu nhiên (Chọn ngẫu nhiên từ Ngân hàng)</h3>
+    <div class="form-group">
+      <label for="auto-test-name">Tên bài kiểm tra:</label>
+      <input type="text" id="auto-test-name" />
     </div>
-    
+    <div class="form-group">
+      <label for="auto-test-time">Thời gian (phút):</label>
+      <input type="number" id="auto-test-time" value="45" min="1" />
+    </div>
+    <div class="form-group">
+      <label for="auto-test-subject">Môn học:</label>
+      <select id="auto-test-subject">
+        <option value="">-Tất cả-</option>
+        <option value="math">Toán</option>
+        <option value="literature">Văn</option>
+        <option value="english">Tiếng Anh</option>
+        <option value="physics">Vật lý</option>
+        <option value="chemistry">Hóa học</option>
+        <option value="biology">Sinh học</option>
+        <option value="history">Lịch sử</option>
+        <option value="geography">Địa lý</option>
+        <option value="civic">GDCD</option>
+        <option value="it">Tin học</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label for="auto-test-level">Khối:</label>
+      <select id="auto-test-level">
+        <option value="10">10</option>
+        <option value="11">11</option>
+        <option value="12">12</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label for="auto-test-q-count">Số câu hỏi:</label>
+      <input type="number" id="auto-test-q-count" value="10" min="1" />
+    </div>
+    <button class="btn btn-create-test" onclick="createAutoTest()">Tạo bài kiểm tra ngẫu nhiên</button>
+  </div>
+
+  <div id="creation-mode-manual" style="border:1px solid #007bff; padding:15px; margin-bottom:20px; display:none;">
+    <h3>Tạo đề thủ công (Lọc và chọn câu hỏi)</h3>
+    <div class="form-group">
+      <label for="manual-test-name">Tên bài kiểm tra:</label>
+      <input type="text" id="manual-test-name" />
+    </div>
+    <div class="form-group">
+      <label for="manual-test-time">Thời gian (phút):</label>
+      <input type="number" id="manual-test-time" value="45" min="1" />
+    </div>
+    <div class="form-group">
+      <label for="manual-test-subject">Môn học:</label>
+      <select id="manual-test-subject" onchange="filterQuestionsForManualTest()">
+        <option value="">-Tất cả-</option>
+        <option value="math">Toán</option>
+        <option value="literature">Văn</option>
+        <option value="english">Tiếng Anh</option>
+        <option value="physics">Vật lý</option>
+        <option value="chemistry">Hóa học</option>
+        <option value="biology">Sinh học</option>
+        <option value="history">Lịch sử</option>
+        <option value="geography">Địa lý</option>
+        <option value="civic">GDCD</option>
+        <option value="it">Tin học</option>
+      </select>
+      <label for="manual-test-level">Khối:</label>
+      <select id="manual-test-level" onchange="filterQuestionsForManualTest()">
+        <option value="10">10</option>
+        <option value="11">11</option>
+        <option value="12">12</option>
+      </select>
+      <button class="btn" onclick="filterQuestionsForManualTest()" style="display: none;">Lọc câu hỏi</button>
+    </div>
+
+    <div id="manual-q-selection" style="margin-top: 10px; padding: 10px; border: 1px dashed #007bff;">
+      <p>Số câu đã chọn: <strong id="selected-q-count">0</strong></p>
+      <div id="manual-q-list">
+        <p>Chọn "Lọc câu hỏi" để hiển thị danh sách.</p>
+      </div>
+    </div>
+    <button class="btn btn-create-test" onclick="createManualTest()" style="margin-top: 15px;">Tạo bài kiểm tra thủ công</button>
+  </div>
+
+  
+  <hr style="margin-top: 30px; margin-bottom: 20px;">
+<h5>Danh sách bài kiểm tra</h5>
+
+<div id="tests-list">
+  <table id="test-table" border="1" style="width:100%; border-collapse: collapse; margin-top: 10px;">
+    <thead>
+      <tr>
+        <th>STT</th>          
+        <th>Tên bài kiểm tra</th> 
+        <th>Môn học</th>      
+        <th>Khối</th>         
+        <th>Số câu</th>       
+        <th>Thời gian (phút)</th>
+        <th>Ngày tạo</th>     
+        <th>Ngày giao</th>    
+        <th>Trạng thái</th>   
+        <th>Hành động</th>    </tr>
+    </thead>
+    <tbody>
+      </tbody>
+  </table>
+</div>
+  
 <div id="edit-test-modal" class="modal">
   <div class="modal-content">
+
     <span class="close" onclick="document.getElementById('edit-test-modal').style.display='none'">&times;</span>
     <h3>Sửa bài kiểm tra</h3>
     <input type="hidden" id="edit-test-id">
@@ -554,31 +722,35 @@ color: #dc3545; / đỏ chuẩn /
       </select>
     </div>
 
-    <button class="btn" onclick="updateTest()">Lưu</button>
+   <button class="btn" onclick="updateTest()">Lưu</button>
     <button class="btn logout" onclick="document.getElementById('edit-test-modal').style.display='none'">Hủy</button>
   </div>
-</div>
+</div> </div> 
 
+<div id="assign-test-modal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="document.getElementById('assign-test-modal').style.display='none'">&times;</span>
+    <h3>Giao đề kiểm tra</h3>
+    <input type="hidden" id="assign-modal-test-id">
+    
+    <p>Bài kiểm tra đang giao: <strong id="assign-modal-test-name"></strong></p>
 
-
-    <div id="tab-assign" class="tab-content">
-      <h2>Giao đề</h2>
-      <div class="form-group">
-        <label for="assign-test">Chọn bài kiểm tra:</label>
-        <select id="assign-test"></select>
-      </div>
-      <div class="form-group">
-        <label for="assign-student">Chọn học sinh:</label>
-        <select id="assign-student"></select>
-      </div>
-      <div class="form-group">
-        <label for="assign-deadline">Hạn chót:</label>
-        <input type="datetime-local" id="assign-deadline" />
-      </div>
-      <button class="btn" onclick="assignTest()">Giao đề</button>
-      <h3>Danh sách đề đã giao</h3>
-      <div id="assigns-list"></div>
+    <div class="form-group">
+      <label for="assign-modal-student">Chọn học sinh:</label>
+      <select id="assign-modal-student">
+        <option value="">-- Chọn học sinh --</option>
+      </select>
     </div>
+
+    <div class="form-group">
+      <label for="assign-modal-deadline">Hạn chót:</label>
+      <input type="datetime-local" id="assign-modal-deadline" />
+    </div>
+
+    <button class="btn" onclick="submitTestAssignment()">Giao đề</button>
+    <button class="btn logout" onclick="document.getElementById('assign-test-modal').style.display='none'">Hủy</button>
+  </div>
+</div>
 
     <div id="tab-students" class="tab-content">
       <h2>Quản lý học sinh</h2>
@@ -625,7 +797,9 @@ color: #dc3545; / đỏ chuẩn /
       <h2>Kết quả bài làm</h2>
       <div id="results-list"></div>
     </div>
-  </div>
+
+  </div> </div>
+
 
   <div class="container" id="student-container" style="display:none;">
     <header>
@@ -665,6 +839,14 @@ const SUBJECT_NAMES = {
       if (tabId === 'tab-assign') renderAssigns();
       if (tabId === 'tab-students') renderStudents();
       if (tabId === 'tab-results') renderResults();
+      if (tabId === 'tab-q') {
+  // Chỉ gọi renderQuestions() nếu không có bộ lọc nào được chọn
+  // Tuy nhiên, cách tốt nhất là luôn gọi, nhưng hãy đảm bảo rằng nó chỉ gọi duy nhất 1 lần
+  
+}
+  if (tabId === 'tab-test') {
+      showCreationMode('auto'); // Mặc định hiển thị chế độ ngẫu nhiên
+  }
     }
 
     function escapeHtml(unsafe) {
@@ -699,7 +881,54 @@ const SUBJECT_NAMES = {
       }
     });
 
+// Thay thế hàm createTest() cũ bằng createAutoTest()
+async function createAutoTest() {
+  const name = document.getElementById('auto-test-name').value; // ID mới
+  const time = parseInt(document.getElementById('auto-test-time').value); // ID mới
+  const subject = document.getElementById('auto-test-subject').value; // ID mới
+  const level = document.getElementById('auto-test-level').value; // ID mới
+  const qCount = parseInt(document.getElementById('auto-test-q-count').value); // ID mới
 
+  if (!name || isNaN(time) || isNaN(qCount)) {
+    alert("Vui lòng nhập đầy đủ thông tin.");
+    return;
+  }
+  
+  try {
+    const qsResponse = await fetch(`${serverUrl}/questions?subject=${subject}&level=${level}`);
+    const allQuestions = await qsResponse.json();
+    const testQuestions = shuffle(allQuestions).slice(0, qCount);
+
+    if (testQuestions.length < qCount) {
+        alert(`Không đủ câu hỏi (${testQuestions.length} câu) trong ngân hàng cho bộ lọc này. Vui lòng giảm số câu hoặc thay đổi bộ lọc.`);
+        return;
+    }
+
+    const newTest = {
+      name,
+      time,
+      subject,
+      level,
+      questions: testQuestions,
+      teacherId: 'teacher'
+    };
+    
+    const response = await fetch(`${serverUrl}/tests`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newTest),
+    });
+    
+    if (response.ok) {
+      alert("Tạo bài kiểm tra ngẫu nhiên thành công!");
+      renderTests();
+    } else {
+      alert("Lỗi khi tạo bài kiểm tra.");
+    }
+  } catch (error) {
+    alert("Lỗi khi tạo bài kiểm tra: " + error.message);
+  }
+}
 
 
     function logout() {
@@ -726,84 +955,260 @@ const SUBJECT_NAMES = {
       renderStudentResults(user.id);
     }
 
+// Hàm: Lọc và hiển thị câu hỏi cho chế độ thủ công
+async function filterQuestionsForManualTest() {
+  const subject = document.getElementById('manual-test-subject').value;
+  const level = document.getElementById('manual-test-level').value;
+  const qListDiv = document.getElementById('manual-q-list');
+  qListDiv.innerHTML = 'Đang tải câu hỏi...';
+  
+  try {
+    const qsResponse = await fetch(`${serverUrl}/questions?subject=${subject}&level=${level}`);
+    
+    if (!qsResponse.ok) {
+        alert(`Lỗi khi tải câu hỏi: ${qsResponse.status}`);
+        qListDiv.innerHTML = 'Lỗi khi tải câu hỏi.';
+        return;
+    }
+
+    const questions = await qsResponse.json();
+
+    qListDiv.innerHTML = '';
+    
+    if (questions.length === 0) {
+        qListDiv.innerHTML = '<p style="color:red;">Không tìm thấy câu hỏi nào với bộ lọc này.</p>';
+        return;
+    }
+
+    questions.forEach((q, index) => {
+      const item = document.createElement('div');
+      item.classList.add('question');
+      item.innerHTML = `
+        <label style="display: block; cursor: pointer;">
+          <input type="checkbox" name="selected-q" value="${q.id}" onchange="updateSelectedCount()">
+          <strong>[${q.type === 'mc' ? 'TN' : 'TL'}] Câu ${index + 1} (${q.points}đ, Khối ${q.level}):</strong> ${escapeHtml(q.q)}
+        </label>
+      `;
+      qListDiv.appendChild(item);
+    });
+
+    updateSelectedCount(); 
+    
+  } catch (error) {
+    qListDiv.innerHTML = 'Lỗi kết nối đến server.';
+    alert("Lỗi kết nối khi tải câu hỏi: " + error.message);
+  }
+}
+
+// Hàm: Cập nhật số câu đã chọn
+function updateSelectedCount() {
+  const selectedCount = document.querySelectorAll('#manual-q-list input[name="selected-q"]:checked').length;
+  document.getElementById('selected-q-count').textContent = selectedCount;
+}
+
+// Hàm: Tạo bài kiểm tra thủ công
+async function createManualTest() {
+  const name = document.getElementById('manual-test-name').value;
+  const time = parseInt(document.getElementById('manual-test-time').value);
+  const subject = document.getElementById('manual-test-subject').value;
+  const level = document.getElementById('manual-test-level').value;
+  
+  const selectedIds = Array.from(document.querySelectorAll('#manual-q-list input[name="selected-q"]:checked'))
+                           .map(checkbox => checkbox.value);
+                           
+  if (!name || isNaN(time) || selectedIds.length === 0) {
+    alert("Vui lòng nhập tên, thời gian và chọn ít nhất một câu hỏi.");
+    return;
+  }
+  
+  let testQuestions = [];
+  try {
+      // Dùng Promise.all để fetch chi tiết của tất cả các câu hỏi đã chọn
+      const qDetailsPromises = selectedIds.map(id => fetch(`${serverUrl}/questions/${id}`).then(res => {
+          if (!res.ok) throw new Error(`Failed to fetch question ${id}`);
+          return res.json();
+      }));
+      testQuestions = await Promise.all(qDetailsPromises);
+  } catch (error) {
+      alert("Lỗi khi tải chi tiết câu hỏi đã chọn. Vui lòng kiểm tra lại server.");
+      return;
+  }
+
+  const newTest = {
+    name,
+    time,
+    subject,
+    level,
+    questions: testQuestions,
+    teacherId: 'teacher'
+  };
+  
+  try {
+    const response = await fetch(`${serverUrl}/tests`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newTest),
+    });
+    
+    if (response.ok) {
+      alert("Tạo bài kiểm tra thủ công thành công!");
+      // Reset trạng thái
+      document.getElementById('manual-test-name').value = '';
+      document.getElementById('manual-test-time').value = 45;
+      document.getElementById('manual-q-list').innerHTML = '<p>Chọn "Lọc câu hỏi" để hiển thị danh sách.</p>';
+      updateSelectedCount();
+      renderTests();
+    } else {
+      alert("Lỗi khi tạo bài kiểm tra.");
+    }
+  } catch (error) {
+    alert("Lỗi khi tạo bài kiểm tra: " + error.message);
+  }
+}
+
+// =====================================
+// --- CÁC HÀM ĐIỀU KHIỂN MODAL VÀ FORM ---
+// =====================================
+
+function openModal() {
+  const modal = document.getElementById('add-q-modal');
+  
+  // 1. Hiển thị modal
+  modal.style.display = 'block';
+  
+  // 2. Reset form
+  document.getElementById('add-q-form-modal').reset(); 
+  
+  // 3. Xóa đáp án cũ và thêm đáp án mặc định
+  document.getElementById('options-list').innerHTML = ''; 
+  addOption(); 
+  
+  // 4. Đảm bảo toggleOptions chạy để hiện/ẩn phần đáp án
+  toggleOptions();
+}
+
+function closeModal() {
+  document.getElementById('add-q-modal').style.display = 'none';
+}
+
+// Đóng Modal khi người dùng nhấp ra bên ngoài
+window.onclick = function(event) {
+  const modal = document.getElementById('add-q-modal');
+  if (event.target == modal) {
+    closeModal();
+  }
+}
 
     // --- Question Management (CRUD) ---
-    async function addQuestion() {
-      const qText = document.getElementById('q-text').value;
-      const type = document.getElementById('q-type').value;
-      const points = parseFloat(document.getElementById('q-points').value);
-      const subject = document.getElementById('q-subject-new').value;
-      const level = document.getElementById('q-level-new').value;
-      const options = [];
-      if (type === 'mc') {
-        const optionInputs = document.querySelectorAll('.option-input');
-        const correctCheckboxes = document.querySelectorAll('.option-correct');
-        for (let i = 0; i < optionInputs.length; i++) {
-          options.push({ text: optionInputs[i].value, correct: correctCheckboxes[i].checked });
-        }
-      }
 
-      if (!qText) {
-        alert("Nhập nội dung câu hỏi");
+async function addQuestion(event) {
+  event.preventDefault(); 
+  
+  // Lấy form
+  const form = document.getElementById('add-q-form-modal'); // Hoặc id form bạn đang dùng
+  
+  const qText = document.getElementById('q-text').value;
+  const type = document.getElementById('q-type').value;
+  const points = parseFloat(document.getElementById('q-points').value);
+  const subject = document.getElementById('q-subject-new').value;
+  const level = document.getElementById('q-level-new').value;
+  const options = [];
+  
+  if (type === 'mc') {
+    const optionInputs = document.querySelectorAll('.option-input');
+    const correctCheckboxes = document.querySelectorAll('.option-correct');
+    
+    let correctCount = 0;
+    for (let i = 0; i < optionInputs.length; i++) {
+        options.push({ text: optionInputs[i].value, correct: correctCheckboxes[i].checked });
+        if (correctCheckboxes[i].checked) {
+            correctCount++;
+        }
+    }
+    
+    if (correctCount === 0) {
+        alert("Câu hỏi trắc nghiệm phải có ít nhất một đáp án đúng.");
         return;
-      }
-
-      const newQuestion = { q: qText, type, points, subject, level, options };
-      
-      try {
-        const response = await fetch(`${serverUrl}/questions`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(newQuestion),
-        });
-        if (response.ok) {
-          alert("Thêm câu hỏi thành công!");
-          document.getElementById('add-q-form').style.display = 'none';
-          document.getElementById('q-text').value = '';
-          renderQuestions();
-        } else {
-          alert("Lỗi khi thêm câu hỏi.");
-        }
-      } catch (error) {
-        alert("Lỗi kết nối đến máy chủ.");
-      }
     }
+  }
 
-    async function renderQuestions() {
-      const tb = document.querySelector('#q-table tbody');
-      tb.innerHTML = '';
+  if (!qText) {
+    alert("Nhập nội dung câu hỏi");
+    return;
+  }
+
+  const newQuestion = { q: qText, type, points, subject, level, options };
+  
+  try {
+    const response = await fetch(`${serverUrl}/questions`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newQuestion),
+    });
+    
+    if (response.ok) {
+      alert("Thêm câu hỏi thành công! Vui lòng nhập câu hỏi tiếp theo.");
       
-      try {
-        const response = await fetch(`${serverUrl}/questions`);
-        const qs = await response.json();
-
-        const fSubject = document.getElementById('q-subject').value;
-        const fLevel = document.getElementById('q-level').value;
-
-        let filteredQs = qs.filter(q => 
-          (!fSubject || q.subject === fSubject) && (!fLevel || q.level === fLevel)
-        );
-        
-        filteredQs.forEach((q, i) => {
-          const tr = document.createElement('tr');
-          tr.innerHTML = `
-            <td>${i + 1}</td>
-            <td>${escapeHtml(q.q)}</td>
-            <td>${q.type === 'mc' ? 'TN' : 'TL'}</td>
-            <td>${q.points}</td>
-           <td>${SUBJECT_NAMES[q.subject] || q.subject || '-'}</td>
-            <td>${q.level || '-'}</td>
-            <td>
-              <button onclick="editQ('${q.id}')" class="btn-edit">Sửa</button>
-              <button onclick="delQ('${q.id}')" class="btn-delete">Xóa</button>
-            </td>
-          `;
-          tb.appendChild(tr);
-        });
-      } catch (error) {
-        alert("Lỗi khi tải danh sách câu hỏi.");
-      }
+      // 1. ⚠️ Bỏ closeModal() để giữ Modal mở
+      
+      // 2. Reset form (clear input text, select)
+      form.reset();
+      
+      // 3. Reset các đáp án trắc nghiệm về trạng thái ban đầu
+      document.getElementById('options-list').innerHTML = ''; 
+      addOption(); // Thêm lại một đáp án mặc định
+      
+      // 4. Tải lại danh sách câu hỏi ở tab chính
+      renderQuestions();
+      
+    } else {
+      alert("Lỗi khi thêm câu hỏi.");
     }
+  } catch (error) {
+    alert("Lỗi kết nối đến máy chủ.");
+  }
+}
+
+// Trong index.html, tìm và chỉnh sửa hàm renderQuestions()
+
+async function renderQuestions() {
+  const tb = document.querySelector('#q-table tbody');
+  
+  // 💡 BƯỚC KHẮC PHỤC: Xóa nội dung cũ của tbody
+  tb.innerHTML = ''; 
+  
+  try {
+    const response = await fetch(`${serverUrl}/questions`);
+    const qs = await response.json();
+
+    const fSubject = document.getElementById('q-subject').value;
+    const fLevel = document.getElementById('q-level').value;
+
+    let filteredQs = qs.filter(q => 
+      (!fSubject || q.subject === fSubject) && (!fLevel || q.level === fLevel)
+    );
+    
+    filteredQs.forEach((q, i) => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${i + 1}</td>
+        <td>${escapeHtml(q.q)}</td>
+        <td>${q.type === 'mc' ? 'TN' : 'TL'}</td>
+        <td>${q.points}</td>
+       <td>${SUBJECT_NAMES[q.subject] || q.subject || '-'}</td>
+        <td>${q.level || '-'}</td>
+        <td>
+          <button onclick="editQ('${q.id}')" class="btn-edit">Sửa</button>
+          <button onclick="delQ('${q.id}')" class="btn-delete">Xóa</button>
+        </td>
+      `;
+      // ✅ Mỗi lần lặp sẽ thêm một hàng mới vào tbody đã được làm sạch
+      tb.appendChild(tr); 
+    });
+  } catch (error) {
+    alert("Lỗi khi tải danh sách câu hỏi.");
+  }
+}
 
     async function delQ(id) {
       if (!confirm('Xóa câu hỏi này?')) return;
@@ -853,6 +1258,14 @@ const SUBJECT_NAMES = {
     alert("Không tải được dữ liệu câu hỏi.");
   }
 }
+
+// Thêm hàm này vào phần JavaScript
+function showCreationMode(mode) {
+  document.getElementById('creation-mode-auto').style.display = mode === 'auto' ? 'block' : 'none';
+  document.getElementById('creation-mode-manual').style.display = mode === 'manual' ? 'block' : 'none';
+}
+
+
 
 async function saveEditQ() {
   const id = document.getElementById('edit-q-id').value;
@@ -997,7 +1410,11 @@ async function submitTest(testId, assignId, studentId) {
   }
 }
 
-
+// Thêm hàm này vào phần JavaScript
+function showCreationMode(mode) {
+  document.getElementById('creation-mode-auto').style.display = mode === 'auto' ? 'block' : 'none';
+  document.getElementById('creation-mode-manual').style.display = mode === 'manual' ? 'block' : 'none';
+}
 
     
     // --- Test Management (CRUD) ---
@@ -1044,48 +1461,345 @@ async function submitTest(testId, assignId, studentId) {
       }
     }
 
-    async function renderTests() {
-      const testList = document.getElementById('tests-list');
-      testList.innerHTML = '';
-      try {
-        const response = await fetch(`${serverUrl}/tests`);
-        const tests = await response.json();
-        tests.forEach(test => {
-          const item = document.createElement('div');
-          item.classList.add('test-item');
-          item.innerHTML = `
-            <h3>${escapeHtml(test.name)}</h3>
-            <p>Thời gian: ${test.time} phút</p>
-            <p>Số câu: ${test.questions.length}</p>
-            <p>Môn: ${SUBJECT_NAMES[test.subject] || test.subject}</p>
-            <p>Khối: ${test.level}</p>
-            <button onclick="editTest('${test.id}')" class="inline-btn btn-edit">Sửa</button>
-            <button onclick="delTest('${test.id}')" class="inline-btn danger">Xóa</button>
-          `;
-          testList.appendChild(item);
-        });
-      } catch (error) {
-        alert("Lỗi khi tải danh sách bài kiểm tra.");
+    // Hàm định dạng ngày tháng (Đảm bảo hàm này đã tồn tại)
+function formatDate(isoString) {
+  // Nếu dữ liệu không tồn tại hoặc rỗng, trả về một chuỗi thay thế
+  if (!isoString) return 'Chưa có'; 
+  try {
+    // Tạo đối tượng Date từ chuỗi ISO
+    const date = new Date(isoString);
+    
+    // Kiểm tra tính hợp lệ
+    if (isNaN(date.getTime())) {
+        return 'Ngày không hợp lệ';
+    }
+    
+    // Định dạng ngày (dd/mm/yyyy)
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0'); // Tháng bắt đầu từ 0
+    const year = date.getFullYear();
+    
+    return `${day}/${month}/${year}`;
+  } catch (e) {
+    // Bắt lỗi nếu quá trình chuyển đổi thất bại
+    return 'Lỗi định dạng';
+  }
+}
+async function renderTests() {
+    const testListDiv = document.getElementById('tests-list');
+    
+    // Tạo cấu trúc bảng nếu chưa có (để đảm bảo có tbody)
+    if (!document.getElementById('test-table')) {
+      const tableHTML = `
+        <table id="test-table" border="1" style="width:100%; border-collapse: collapse; margin-top: 10px;">
+          <thead>
+            <tr>
+              <th>STT</th>
+              <th>Tên bài kiểm tra</th>
+              <th>Môn học</th>
+              <th>Khối</th>
+              <th>Số câu</th>
+              <th>Thời gian (phút)</th>
+              <th>Ngày tạo</th>
+              <th>Ngày giao</th>
+              <th>Trạng thái</th>               
+	      <th>Hành động</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      `;
+      testListDiv.innerHTML = tableHTML;
+    }
+    
+    const tbody = document.querySelector('#test-table tbody');
+    tbody.innerHTML = ''; // Xóa nội dung cũ
+
+    try {
+        const response = await fetch(`${serverUrl}/tests`);
+        const tests = await response.json();
+        
+        // Số cột đã tăng lên 10 (9 cột cũ + 1 cột trạng thái mới)
+        if (tests.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="10" style="text-align: center; padding: 10px;">Chưa có bài kiểm tra nào được tạo.</td></tr>';
+    return;
+}
+        tests.forEach((test, i) => {
+            const tr = document.createElement('tr');
+            
+            const questionCount = test.questions ? test.questions.length : 0;
+            const subjectName = SUBJECT_NAMES[test.subject] || test.subject || '-';
+            
+            const createdAt = formatDate(test.createdAt); 
+            const assignedDateDisplay = formatDate(test.assignedDate);
+            
+            // 💡 LOGIC XÁC ĐỊNH TRẠNG THÁI
+            // Nếu assignedDate tồn tại (có giá trị) thì là 'Đã giao'
+            const isAssigned = test.assignedDate && test.assignedDate !== 'Chưa có' && test.assignedDate !== 'Ngày không hợp lệ';
+
+            let statusText;
+            let statusColor;
+
+            if (isAssigned) {
+                statusText = 'Đã giao';
+                statusColor = 'green';
+            } else {
+                statusText = 'Chưa giao';
+                statusColor = 'orange';
+            }
+            
+           tr.innerHTML = `
+            <td>${i + 1}</td>
+            <td>${escapeHtml(test.name) || 'Không tên'}</td>
+            <td>${subjectName}</td>
+            <td>${test.level || '-'}</td>
+            <td>${questionCount}</td>
+            <td>${test.time || '-'}</td>
+            <td>${createdAt}</td>
+            <td>${assignedDateDisplay}</td>
+            <td style="color: ${statusColor}; font-weight: bold;">${statusText}</td>
+            <td>
+                <button onclick="openAssignModal('${test.id}', '${escapeHtml(test.name)}')" class="btn-primary" style="margin-right: 5px;">Giao đề</button> 
+                
+                <button onclick="viewTestContent('${test.id}')" class="btn-info">Xem</button>
+                <button onclick="editTest('${test.id}')" class="btn-edit">Sửa</button>
+                <button onclick="deleteTest('${test.id}')" class="btn-delete">Xóa</button>
+            </td>
+        `;
+            tbody.appendChild(tr);
+        });
+    } catch (error) {
+        console.error('Lỗi khi tải danh sách bài kiểm tra:', error);
+        tbody.innerHTML = '<tr><td colspan="10" style="color: red; text-align: center; padding: 10px;">Lỗi kết nối đến máy chủ.</td></tr>';
+    }
+}
+async function editTest(testId) {
+  try {
+    const response = await fetch(`${serverUrl}/tests/${testId}`);
+    if (!response.ok) throw new Error('Không tìm thấy bài kiểm tra.');
+    const test = await response.json();
+
+    // Điền dữ liệu vào form Sửa (Modal)
+    document.getElementById('edit-test-id').value = test.id;
+    document.getElementById('edit-test-name').value = test.name || '';
+    document.getElementById('edit-test-duration').value = test.duration || 45; // duration giả định
+    document.getElementById('edit-test-subject').value = test.subject || 'math';
+    document.getElementById('edit-test-level').value = test.level || '10'; // level giả định
+    
+    // ⚠️ Nếu bạn muốn sửa nội dung câu hỏi, logic sẽ phức tạp hơn và cần một form chi tiết hơn
+
+    // Mở Modal Sửa
+    document.getElementById('edit-test-modal').style.display = 'block';
+
+  } catch (error) {
+    alert(`Lỗi khi lấy dữ liệu bài kiểm tra: ${error.message}`);
+  }
+}
+
+// Hàm chuyển đổi chuỗi ISO Date thành định dạng dd/mm/yyyy
+function formatDate(isoString) {
+  if (!isoString) return 'Chưa có';
+  try {
+    const date = new Date(isoString);
+    if (isNaN(date.getTime())) {
+        return 'Ngày không hợp lệ';
+    }
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    // Bạn có thể thêm giờ phút nếu muốn:
+    // const hours = String(date.getHours()).padStart(2, '0');
+    // const minutes = String(date.getMinutes()).padStart(2, '0');
+    // return `${day}/${month}/${year} ${hours}:${minutes}`;
+    return `${day}/${month}/${year}`;
+  } catch (e) {
+    return 'Ngày không hợp lệ';
+  }
+}
+
+async function deleteTest(testId) {
+    // Xác nhận người dùng
+    if (confirm("Bạn có chắc chắn muốn xóa bài kiểm tra này không? Hành động này không thể hoàn tác.")) {
+        try {
+            // Gọi API DELETE tới server
+            const response = await fetch(`${serverUrl}/tests/${testId}`, {
+                method: 'DELETE'
+            });
+
+            if (response.ok) {
+                alert("Xóa bài kiểm tra thành công!");
+                // Tải lại danh sách để cập nhật bảng
+                renderTests(); 
+            } else if (response.status === 404) {
+                alert("Lỗi: Bài kiểm tra không tồn tại trên server.");
+            } else {
+                alert("Lỗi khi xóa bài kiểm tra. Vui lòng kiểm tra server.");
+            }
+        } catch (error) {
+            console.error('Lỗi kết nối hoặc xử lý:', error);
+            alert("Lỗi kết nối đến máy chủ. Vui lòng kiểm tra console.");
+        }
+    }
+}
+
+// Lưu ý: Nếu trong hàm renderTests() bạn đang gọi là delTest,
+// hãy đổi tên hàm này thành delTest (hoặc sửa renderTests() thành deleteTest).
+
+async function updateTest() {
+  const testId = document.getElementById('edit-test-id').value;
+  const name = document.getElementById('edit-test-name').value;
+  const duration = document.getElementById('edit-test-duration').value;
+  const subject = document.getElementById('edit-test-subject').value;
+  const level = document.getElementById('edit-test-level').value;
+
+  if (!name) {
+    alert("Tên bài kiểm tra không được để trống.");
+    return;
+  }
+
+  const updatedData = { name, duration: parseInt(duration), subject, level };
+  
+  try {
+    const response = await fetch(`${serverUrl}/tests/${testId}`, {
+      method: 'PUT', // Hoặc PATCH tùy thuộc vào API server của bạn
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(updatedData),
+    });
+
+    if (response.ok) {
+      alert("Cập nhật bài kiểm tra thành công!");
+      document.getElementById('edit-test-modal').style.display = 'none'; // Đóng modal
+      renderTests(); // Tải lại bảng
+    } else {
+      alert("Lỗi khi cập nhật bài kiểm tra.");
+    }
+  } catch (error) {
+    alert("Lỗi kết nối đến máy chủ.");
+  }
+}
+
+async function delTest(testId) {
+  if (confirm(`Bạn có chắc chắn muốn xóa bài kiểm tra ID: ${testId} không?`)) {
+    try {
+      // ⚠️ Đổi endpoint API nếu cần
+      const response = await fetch(`${serverUrl}/tests/${testId}`, { method: 'DELETE' });
+
+      if (response.ok) {
+        alert("Xóa bài kiểm tra thành công!");
+        renderTests(); // Tải lại bảng sau khi xóa
+      } else {
+        alert("Lỗi khi xóa bài kiểm tra.");
       }
+    } catch (error) {
+      alert("Lỗi kết nối đến máy chủ.");
+    }
+  }
+}
+
+async function loadStudentsForAssignment() {
+    const select = document.getElementById('assign-modal-student');
+    select.innerHTML = '<option value="">-- Chọn học sinh --</option>'; // Reset
+    
+    try {
+        // Lấy danh sách người dùng (học sinh)
+        const response = await fetch(`${serverUrl}/users`); 
+        const users = await response.json();
+        
+        const students = users.filter(u => u.role === 'student');
+        
+        students.forEach(student => {
+            const option = document.createElement('option');
+            option.value = student.id;
+            option.textContent = `${student.user} (ID: ${student.id.substring(0, 4)}...)`;
+            select.appendChild(option);
+        });
+    } catch (error) {
+        console.error("Lỗi khi tải danh sách học sinh:", error);
+    }
+}
+
+
+function openAssignModal(testId, testName) {
+    // 1. Lưu ID và Tên bài kiểm tra vào modal
+    document.getElementById('assign-modal-test-id').value = testId;
+    document.getElementById('assign-modal-test-name').textContent = testName;
+    
+    // 2. Tải danh sách học sinh
+    loadStudentsForAssignment();
+    
+    // 3. Xóa giá trị hạn chót cũ
+    document.getElementById('assign-modal-deadline').value = ''; 
+    
+    // 4. Hiển thị modal
+    document.getElementById('assign-test-modal').style.display = 'block';
+}
+
+
+
+async function submitTestAssignment() {
+    const testId = document.getElementById('assign-modal-test-id').value;
+    const studentId = document.getElementById('assign-modal-student').value;
+    const deadline = document.getElementById('assign-modal-deadline').value;
+    
+    if (!studentId || !deadline) {
+        alert("Vui lòng chọn học sinh và đặt hạn chót.");
+        return;
     }
 
-    async function editTest(id) {
-      try {
-        const response = await fetch(`${serverUrl}/tests/${id}`);
-        const test = await response.json();
-        
-        document.getElementById('edit-test-id').value = test.id;
-        document.getElementById('edit-test-name').value = test.name;
-        // Chú ý: input trong modal là 'edit-test-duration'
-        document.getElementById('edit-test-duration').value = test.time; 
-        document.getElementById('edit-test-subject').value = test.subject;
-        document.getElementById('edit-test-level').value = test.level; // Thêm dòng này
-        
-        document.getElementById('edit-test-modal').style.display = 'block';
-      } catch (error) {
-        alert("Lỗi khi tải dữ liệu bài kiểm tra: " + error.message);
-      }
+    const newAssignment = {
+        testId,
+        studentId,
+        deadline: new Date(deadline).toISOString(), // Chuyển đổi sang định dạng ISO
+        status: 'assigned' // Trạng thái ban đầu
+    };
+    
+    try {
+        // ⚠️ Gọi API giao đề
+        const response = await fetch(`${serverUrl}/assigns`, { 
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(newAssignment),
+        });
+
+        if (response.ok) {
+            alert("Giao đề thành công!");
+            document.getElementById('assign-test-modal').style.display = 'none';
+            // Cập nhật tab giao đề (nếu tab đó đang mở)
+            // renderAssigns(); 
+        } else {
+            alert("Lỗi khi giao đề.");
+        }
+    } catch (error) {
+        alert("Lỗi kết nối đến máy chủ.");
     }
+}
+
+// Trong index.html, chỉnh sửa hàm editTest(id)
+async function editTest(id) {
+  try {
+    const response = await fetch(`${serverUrl}/tests/${id}`);
+    
+    // 💡 Thêm bước kiểm tra trạng thái HTTP
+    if (!response.ok) { 
+      // Xử lý lỗi nếu không phải 200 OK (ví dụ: 404)
+      alert(`Không tải được dữ liệu bài kiểm tra. (Lỗi HTTP: ${response.status})`);
+      return; 
+    }
+    
+    const test = await response.json();
+    
+    document.getElementById('edit-test-id').value = test.id;
+    document.getElementById('edit-test-name').value = test.name;
+    // Đảm bảo bạn sử dụng ID 'edit-test-duration' (như trong HTML)
+    document.getElementById('edit-test-duration').value = test.time; 
+    document.getElementById('edit-test-subject').value = test.subject;
+    document.getElementById('edit-test-level').value = test.level;
+
+    document.getElementById('edit-test-modal').style.display = 'block';
+  } catch (error) {
+    alert("Lỗi khi tải dữ liệu bài kiểm tra: " + error.message);
+  }
+}
 
     // HÀM MỚI ĐƯỢC THÊM/SỬA ĐỂ NÚT 'LƯU' TRONG MODAL SỬA BÀI KIỂM TRA HOẠT ĐỘNG
     async function updateTest() {
@@ -1695,6 +2409,20 @@ function saveEditTest(){...}
     function removeOption(btn) {
       btn.parentElement.remove();
     }
+
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Gán sự kiện submit cho form trong Modal (sử dụng ID form trong Modal)
+    const formInModal = document.getElementById('add-q-form-modal'); 
+    
+    // Nếu bạn giữ ID cũ là 'add-q-form', hãy dùng id đó ở đây
+    // const formInModal = document.getElementById('add-q-form'); 
+    
+    if (formInModal) {
+        formInModal.addEventListener('submit', addQuestion);
+    }
+});
+
   </script>
 </body>
 
