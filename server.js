@@ -214,15 +214,22 @@ app.listen(PORT, () => {
   console.log(`Server is running on https://tn-j0j4.onrender.com`);
 });
 
+
 app.get("/api/results/:id", (req, res) => {
   const id = req.params.id;
-  const result = results.find(r => r.id == id); // dùng == để so sánh string/number
-  if (!result) {
-    return res.status(404).json({ message: "Not found" });
-  }
-  res.json(result);
-});
+  try {
+    // Nếu bạn dùng mảng tạm
+    const result = results.find(r => r.id == id); // dùng == để so sánh số/string
+    if (!result) {
+      return res.status(404).json({ message: "Not found" });
+    }
+    res.json(result);
 
+  } catch (err) {
+    console.error("Error in GET /results/:id:", err);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+});
 
 
 
