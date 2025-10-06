@@ -128,8 +128,21 @@ app.get('/api/tests', (req, res) => {
 });
 
 app.post('/api/tests', (req, res) => {
-  const { name, time, subject, level, questions, teacherId } = req.body;
-  const newTest = { id: uuidv4(), name, time, subject, level, questions, teacherId };
+  // Lấy thêm assignedDate (tùy chọn) nếu client gửi lên
+  const { name, time, subject, level, questions, teacherId, assignedDate } = req.body; 
+  
+  // 💡 THÊM createdAt TỰ ĐỘNG và assignedDate
+  const newTest = { 
+    id: uuidv4(), 
+    name, 
+    time, 
+    subject, 
+    level, 
+    questions, 
+    teacherId,
+    createdAt: new Date().toISOString(), // Ngày tạo: Tự động thêm
+    assignedDate: assignedDate || null    // Ngày giao: Lấy từ body (hoặc null nếu chưa có)
+  };
   const db = readDB();
   db.tests.push(newTest);
   writeDB(db);
@@ -142,6 +155,9 @@ app.put('/api/tests/:id', (req, res) => {
   const db = readDB();
   const testIndex = db.tests.findIndex(t => t.id === id);
   if (testIndex !== -1) {
+    // 💡 LƯU Ý: updatedAt Tự động (Tùy chọn)
+    // updatedData.updatedAt = new Date().toISOString(); 
+    
     db.tests[testIndex] = { ...db.tests[testIndex], ...updatedData };
     writeDB(db);
     res.json(db.tests[testIndex]);
@@ -160,6 +176,18 @@ app.delete('/api/tests/:id', (req, res) => {
     res.status(204).send();
   } else {
     res.status(404).json({ message: 'Bài kiểm tra không tìm thấy.' });
+  }
+});
+
+// GET single test by ID
+app.get('/api/tests/:id', (req, res) => {
+  const { id } = req.params;
+  const db = readDB();
+  const test = db.tests.find(t => t.id === id); // Tìm bài kiểm tra
+  if (test) {
+    res.json(test);
+  } else {
+    res.status(404).json({ message: 'Bài kiểm tra không tồn tại.' });
   }
 });
 
@@ -242,6 +270,7 @@ app.get('/api/tests/:id', (req, res) => {
     res.status(404).json({ message: 'Bài kiểm tra không tồn tại.' });
   }
 });
+
 
 
 
