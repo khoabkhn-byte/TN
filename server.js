@@ -1,4 +1,5 @@
 
+require('dotenv').config();
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
@@ -11,27 +12,27 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(bodyParser.json());
 
-// 💡 CẤU HÌNH MONGODB
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://khoabkhn_db_user:KVhPaIp7GDUGYRtM@quiz.hvpqlmn.mongodb.net/?retryWrites=true&w=majority&appName=quiz';
-const DB_NAME = process.env.DB_NAME || 'quiz'; // 👈 thêm dòng này
+// 💡 Cấu hình MongoDB
+const MONGODB_URI = process.env.MONGODB_URI;
+const DB_NAME = process.env.DB_NAME || 'quiz';
 
 let db;
 
-// Hàm kết nối Database
+// Hàm kết nối MongoDB
 async function connectDB() {
     try {
         const client = await MongoClient.connect(MONGODB_URI);
         db = client.db(DB_NAME);
         console.log(`✅ Connected to MongoDB database: ${DB_NAME}`);
     } catch (error) {
-        console.error("❌ MongoDB connection error. Vui lòng kiểm tra MONGODB_URI:", error);
+        console.error('❌ MongoDB connection error. Vui lòng kiểm tra MONGODB_URI:', error);
         process.exit(1);
     }
 }
 
-// --- API Endpoints ---
+/* ====================== API ENDPOINTS ====================== */
 
-// Đăng nhập
+// === LOGIN ===
 app.post('/api/login', async (req, res) => {
     const { user, pass } = req.body;
     try {
@@ -46,7 +47,7 @@ app.post('/api/login', async (req, res) => {
     }
 });
 
-// Lấy danh sách người dùng
+// === USERS ===
 app.get('/api/users', async (req, res) => {
     try {
         const users = await db.collection('users').find({}).toArray();
@@ -56,7 +57,6 @@ app.get('/api/users', async (req, res) => {
     }
 });
 
-// Đăng ký
 app.post('/api/register', async (req, res) => {
     const { user, pass, dob, gender } = req.body;
     try {
@@ -72,14 +72,25 @@ app.post('/api/register', async (req, res) => {
     }
 });
 
-// Question Management
+app.delete('/api/users/:id', async (req, res) => {
+    const { id } = req.params;
+    try {
+        const result = await db.collection('users').deleteOne({ id });
+        if (result.deletedCount > 0) res.status(204).send();
+        else res.status(404).json({ message: 'Người dùng không tìm thấy.' });
+    } catch (error) {
+        res.status(500).json({ message: 'Lỗi server.' });
+    }
+});
+
+// === QUESTIONS ===
 app.get('/api/questions', async (req, res) => {
     try {
         let query = {};
         const { subject, level } = req.query;
         if (subject) query.subject = subject;
         if (level) query.level = level;
-        
+
         const questions = await db.collection('questions').find(query).toArray();
         res.json(questions);
     } catch (error) {
@@ -102,11 +113,8 @@ app.get('/api/questions/:id', async (req, res) => {
     const { id } = req.params;
     try {
         const question = await db.collection('questions').findOne({ id });
-        if (question) {
-            res.json(question);
-        } else {
-            res.status(404).json({ message: 'Câu hỏi không tồn tại.' });
-        }
+        if (question) res.json(question);
+        else res.status(404).json({ message: 'Câu hỏi không tồn tại.' });
     } catch (error) {
         res.status(500).json({ message: 'Lỗi server.' });
     }
@@ -116,18 +124,12 @@ app.put('/api/questions/:id', async (req, res) => {
     const { id } = req.params;
     const updatedData = req.body;
     try {
-        // Loại bỏ trường _id của MongoDB nếu có
-        delete updatedData._id; 
-        const result = await db.collection('questions').updateOne(
-            { id }, 
-            { $set: updatedData }
-        );
+        delete updatedData._id;
+        const result = await db.collection('questions').updateOne({ id }, { $set: updatedData });
         if (result.matchedCount > 0) {
             const updatedQuestion = await db.collection('questions').findOne({ id });
             res.json(updatedQuestion);
-        } else {
-            res.status(404).json({ message: 'Câu hỏi không tồn tại.' });
-        }
+        } else res.status(404).json({ message: 'Câu hỏi không tồn tại.' });
     } catch (error) {
         res.status(500).json({ message: 'Lỗi server.' });
     }
@@ -137,21 +139,29 @@ app.delete('/api/questions/:id', async (req, res) => {
     const { id } = req.params;
     try {
         const result = await db.collection('questions').deleteOne({ id });
-        if (result.deletedCount > 0) {
-            res.status(204).send();
-        } else {
-            res.status(404).json({ message: 'Câu hỏi không tìm thấy.' });
-        }
+        if (result.deletedCount > 0) res.status(204).send();
+        else res.status(404).json({ message: 'Câu hỏi không tìm thấy.' });
     } catch (error) {
         res.status(500).json({ message: 'Lỗi server.' });
     }
 });
 
-// Test Management
+// === TESTS ===
 app.get('/api/tests', async (req, res) => {
     try {
         const tests = await db.collection('tests').find({}).toArray();
         res.json(tests);
+    } catch (error) {
+        res.status(500).json({ message: 'Lỗi server.' });
+    }
+});
+
+app.get('/api/tests/:id', async (req, res) => {
+    const { id } = req.params;
+    try {
+        const test = await db.collection('tests').findOne({ id });
+        if (test) res.json(test);
+        else res.status(404).json({ message: 'Bài kiểm tra không tồn tại.' });
     } catch (error) {
         res.status(500).json({ message: 'Lỗi server.' });
     }
@@ -173,16 +183,11 @@ app.put('/api/tests/:id', async (req, res) => {
     const updatedData = req.body;
     try {
         delete updatedData._id;
-        const result = await db.collection('tests').updateOne(
-            { id }, 
-            { $set: updatedData }
-        );
+        const result = await db.collection('tests').updateOne({ id }, { $set: updatedData });
         if (result.matchedCount > 0) {
             const updatedTest = await db.collection('tests').findOne({ id });
             res.json(updatedTest);
-        } else {
-            res.status(404).json({ message: 'Bài kiểm tra không tồn tại.' });
-        }
+        } else res.status(404).json({ message: 'Bài kiểm tra không tồn tại.' });
     } catch (error) {
         res.status(500).json({ message: 'Lỗi server.' });
     }
@@ -192,23 +197,19 @@ app.delete('/api/tests/:id', async (req, res) => {
     const { id } = req.params;
     try {
         const result = await db.collection('tests').deleteOne({ id });
-        if (result.deletedCount > 0) {
-            res.status(204).send();
-        } else {
-            res.status(404).json({ message: 'Bài kiểm tra không tìm thấy.' });
-        }
+        if (result.deletedCount > 0) res.status(204).send();
+        else res.status(404).json({ message: 'Bài kiểm tra không tìm thấy.' });
     } catch (error) {
         res.status(500).json({ message: 'Lỗi server.' });
     }
 });
 
-// Test Assignment
+// === ASSIGNS ===
 app.get('/api/assigns', async (req, res) => {
     try {
         let query = {};
         const { studentId } = req.query;
         if (studentId) query.studentId = studentId;
-
         const assigns = await db.collection('assigns').find(query).toArray();
         res.json(assigns);
     } catch (error) {
@@ -227,13 +228,13 @@ app.post('/api/assigns', async (req, res) => {
     }
 });
 
-// Result Management
+// === RESULTS ===
 app.get('/api/results', async (req, res) => {
     try {
         let query = {};
         const { studentId } = req.query;
         if (studentId) query.studentId = studentId;
-        
+
         const results = await db.collection('results').find(query).toArray();
         res.json(results);
     } catch (error) {
@@ -251,53 +252,24 @@ app.post('/api/results', async (req, res) => {
     }
 });
 
-app.get("/api/results/:id", async (req, res) => {
+app.get('/api/results/:id', async (req, res) => {
     const id = req.params.id;
     try {
         const result = await db.collection('results').findOne({ id });
-        if (!result) {
-            return res.status(404).json({ message: "Kết quả không tìm thấy." });
-        }
+        if (!result) return res.status(404).json({ message: 'Kết quả không tìm thấy.' });
         res.json(result);
     } catch (err) {
-        console.error("Error in GET /results/:id:", err);
-        res.status(500).json({ message: "Lỗi server nội bộ." });
+        console.error('Error in GET /results/:id:', err);
+        res.status(500).json({ message: 'Lỗi server nội bộ.' });
     }
 });
 
-// GET single test by ID
-app.get('/api/tests/:id', async (req, res) => {
-    const { id } = req.params;
-    try {
-        const test = await db.collection('tests').findOne({ id });
-        if (test) {
-            res.json(test);
-        } else {
-            res.status(404).json({ message: 'Bài kiểm tra không tồn tại.' });
-        }
-    } catch (error) {
-        res.status(500).json({ message: 'Lỗi server.' });
-    }
-});
+/* ========================================================= */
 
-app.get('/api/questions', async (req, res) => {
-    try {
-        let query = {};
-        const { subject, level } = req.query;
-        if (subject) query.subject = subject;
-        if (level) query.level = level;
-        const questions = await db.collection('questions').find(query).toArray();
-        res.json(questions);
-    } catch (error) {
-        res.status(500).json({ message: 'Lỗi server.' });
-    }
-});
-
-// 💡 KHỞI ĐỘNG SERVER SAU KHI KẾT NỐI DB THÀNH CÔNG
+// Khởi động server sau khi kết nối DB thành công
 connectDB().then(() => {
     app.listen(PORT, () => {
         console.log(`🚀 Server is running on port ${PORT}`);
-        console.log(`🌐 URL: https://tn-j0j4.onrender.com`);
+        console.log(`🌐 Render URL: https://tn-j0j4.onrender.com`);
     });
 });
-```
