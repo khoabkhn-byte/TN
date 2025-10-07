@@ -1,22 +1,19 @@
+
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
-// BỎ: const fs = require('fs');
 const { v4: uuidv4 } = require('uuid');
-// 💡 THÊM THƯ VIỆN MONGODB
 const { MongoClient } = require('mongodb');
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 app.use(cors());
 app.use(bodyParser.json());
 
-// BỎ: const readDB = () => JSON.parse(fs.readFileSync('db.json', 'utf8'));
-// BỎ: const writeDB = (data) => fs.writeFileSync('db.json', JSON.stringify(data, null, 2));
-
 // 💡 CẤU HÌNH MONGODB
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://khoabkhn_db_user:KVhPaIp7GDUGYRtM@quiz.hvpqlmn.mongodb.net/?retryWrites=true&w=majority&appName=quiz';
+const DB_NAME = process.env.DB_NAME || 'quiz'; // 👈 thêm dòng này
 
 let db;
 
@@ -25,16 +22,16 @@ async function connectDB() {
     try {
         const client = await MongoClient.connect(MONGODB_URI);
         db = client.db(DB_NAME);
-        console.log("✅ Connected to MongoDB successfully!");
+        console.log(`✅ Connected to MongoDB database: ${DB_NAME}`);
     } catch (error) {
         console.error("❌ MongoDB connection error. Vui lòng kiểm tra MONGODB_URI:", error);
         process.exit(1);
     }
 }
 
-// --- API Endpoints (Đã chuyển sang Async/Await) ---
+// --- API Endpoints ---
 
-// Login
+// Đăng nhập
 app.post('/api/login', async (req, res) => {
     const { user, pass } = req.body;
     try {
@@ -49,7 +46,7 @@ app.post('/api/login', async (req, res) => {
     }
 });
 
-// User (Student) Management
+// Lấy danh sách người dùng
 app.get('/api/users', async (req, res) => {
     try {
         const users = await db.collection('users').find({}).toArray();
@@ -59,6 +56,7 @@ app.get('/api/users', async (req, res) => {
     }
 });
 
+// Đăng ký
 app.post('/api/register', async (req, res) => {
     const { user, pass, dob, gender } = req.body;
     try {
@@ -69,20 +67,6 @@ app.post('/api/register', async (req, res) => {
         const newUser = { id: uuidv4(), user, pass, dob, gender, role: 'student' };
         await db.collection('users').insertOne(newUser);
         res.status(201).json({ success: true, user: newUser });
-    } catch (error) {
-        res.status(500).json({ message: 'Lỗi server.' });
-    }
-});
-
-app.delete('/api/users/:id', async (req, res) => {
-    const { id } = req.params;
-    try {
-        const result = await db.collection('users').deleteOne({ id });
-        if (result.deletedCount > 0) {
-            res.status(204).send();
-        } else {
-            res.status(404).json({ message: 'Người dùng không tìm thấy.' });
-        }
     } catch (error) {
         res.status(500).json({ message: 'Lỗi server.' });
     }
@@ -296,10 +280,24 @@ app.get('/api/tests/:id', async (req, res) => {
     }
 });
 
+app.get('/api/questions', async (req, res) => {
+    try {
+        let query = {};
+        const { subject, level } = req.query;
+        if (subject) query.subject = subject;
+        if (level) query.level = level;
+        const questions = await db.collection('questions').find(query).toArray();
+        res.json(questions);
+    } catch (error) {
+        res.status(500).json({ message: 'Lỗi server.' });
+    }
+});
+
 // 💡 KHỞI ĐỘNG SERVER SAU KHI KẾT NỐI DB THÀNH CÔNG
 connectDB().then(() => {
     app.listen(PORT, () => {
-        console.log(`Server is running on http://localhost:${PORT}`);
-        console.log(`Render URL: https://tn-j0j4.onrender.com`);
+        console.log(`🚀 Server is running on port ${PORT}`);
+        console.log(`🌐 URL: https://tn-j0j4.onrender.com`);
     });
 });
+```
