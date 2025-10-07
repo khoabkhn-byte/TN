@@ -16,7 +16,7 @@ app.use(bodyParser.json());
 // BỎ: const writeDB = (data) => fs.writeFileSync('db.json', JSON.stringify(data, null, 2));
 
 // 💡 CẤU HÌNH MONGODB
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://khoabkhn_db_user:KVhPaIp7GDUGYRtM@quiz.hvpqlmn.mongodb.net/';
+const MONGODB_URI = process.env.MONGODB_URI || mongodb+srv://khoabkhn_db_user:KVhPaIp7GDUGYRtM@quiz.hvpqlmn.mongodb.net/?retryWrites=true&w=majority&appName=quiz;
 
 let db;
 
